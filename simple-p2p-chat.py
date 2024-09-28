@@ -19,7 +19,7 @@ class P2PClient:
 
     def start(self):
         threading.Thread(target=self.discover_peers, daemon=True).start()
-        threading.Thread(target=self.listen_for_messages, daemon=True).start()
+        threading.Thread(target=self.listen_to_ids, daemon=True).start()
         threading.Thread(target=self.announce_presence, daemon=True).start()
         # self.announce_presence()
         self.chat_loop()
@@ -36,12 +36,12 @@ class P2PClient:
         while True:
             message = json.dumps({
                 'type': 'announce',
-                'user_id': self.user_id
+                'user_id': self.user_id.__str__()
             })
             self.discovery_socket.sendto(message.encode(), ('192.168.211.255', DISCOVERY_PORT))
             time.sleep(2)
 
-    def listen_for_messages(self):
+    def listen_to_ids(self):
         while True:
             data, addr = self.chat_socket.recvfrom(1024)
             message = json.loads(data.decode())
