@@ -2,13 +2,14 @@ import socket
 import threading
 import json
 import time
+import uuid
 
 DISCOVERY_PORT = 5000
 CHAT_PORT = 5001
 
 class P2PClient:
-    def __init__(self, username):
-        self.username = username
+    def __init__(self):
+        self.user_id = uuid.uuid1()
         self.peers = {}
         self.discovery_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -27,15 +28,15 @@ class P2PClient:
         while True:
             data, addr = self.discovery_socket.recvfrom(1024)
             message = json.loads(data.decode())
-            if message['type'] == 'announce' and message['username'] != self.username:
-                self.peers[message['username']] = addr[0]
-                # print(f"Discovered peer: {message['username']} at {addr[0]}")
+            if message['type'] == 'announce' and message['user_id'] != self.user_id:
+                self.peers[message['user_id']] = addr[0]
+                # print(f"Discovered peer: {message['user_id']} at {addr[0]}")
 
     def announce_presence(self):
         while True:
             message = json.dumps({
                 'type': 'announce',
-                'username': self.username
+                'user_id': self.user_id
             })
             self.discovery_socket.sendto(message.encode(), ('192.168.211.255', DISCOVERY_PORT))
             time.sleep(2)
@@ -46,25 +47,23 @@ class P2PClient:
             message = json.loads(data.decode())
             print(f"\n{message['from']}: {message['content']}")
 
-    def send_message(self, to_username, content):
-        if to_username not in self.peers:
-            print(f"Peer {to_username} not found")
-            return
-        message = json.dumps({
-            'from': self.username,
-            'content': content
-        })
-        self.chat_socket.sendto(message.encode(), (self.peers[to_username], CHAT_PORT))
+    def request_id(self, file_id):
+        for ip in self.peers.values():
+            message = json.dumps({
+                'from': self.user_id,
+                'content': file_id
+            })
+            self.chat_socket.sendto(message.encode(), (ip, CHAT_PORT))
 
     def chat_loop(self):
         while True:
-            to_username = input("Send to (or 'quit' to exit): ")
-            if to_username.lower() == 'quit':
+            to_user_id = input("Send to (or 'quit' to exit): ")
+            if to_user_id.lower() == 'quit':
                 break
-            content = input("Message: ")
-            self.send_message(to_username, content)
+            file_id = input("Enter file id: ")
+            self.request_id(file_id)
 
 if __name__ == "__main__":
-    username = input("Enter your username: ")
-    client = P2PClient(username)
+    # user_id = input("Enter your user_id: ")
+    client = P2PClient()
     client.start()
