@@ -14,10 +14,13 @@ class P2PClient:
         self.discovery_socket.bind(('', DISCOVERY_PORT))
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
+        
+        self.thread1=None
+        self.thread2=None
 
     def start(self):
-        threading.Thread(target=self.discover_peers, daemon=True).start()
-        threading.Thread(target=self.listen_for_messages, daemon=True).start()
+        self.thread1=threading.Thread(target=self.discover_peers, daemon=True).start()
+        self.thread2=threading.Thread(target=self.listen_for_messages, daemon=True).start()
         self.announce_presence()
         self.chat_loop()
 
@@ -39,6 +42,17 @@ class P2PClient:
     def listen_for_messages(self):
         while True:
             data, addr = self.chat_socket.recvfrom(1024)
+            if self.thread1 and self.thread2:
+                self.thread1.stop()
+                self.thread1.join()
+                self.thread2.stop()
+                self.thread2.join()
+                
+                self.thread1.start()
+                self.thread2.start()
+            else:
+                print("empty threads")    
+            
             message = json.loads(data.decode())
             print(f"\n{message['from']}: {message['content']}")
 
