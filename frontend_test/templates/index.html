@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask API String Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Send String to Flask API</h2>
+    <input type="text" id="inputString" placeholder="Enter a string">
+    <button id="sendButton">Send to API</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    document.getElementById('sendButton').addEventListener('click', function () {
+        const inputString = document.getElementById('inputString').value;
+        if (inputString) {
+            fetch('http://127.0.0.1:5000/send-string', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ input_string: inputString }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = 
+                    `<p>Original String: ${data.original_string}</p>
+                    <p>Reversed String: ${data.reversed_string}</p>`;
+            })
+            .catch(error => console.error('Error:', error));
+        } else {
+            alert('Please enter a string.');
+        }
+    });
+</script>
+
+</body>
+</html>
