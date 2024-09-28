@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+import time
 
 DISCOVERY_PORT = 5000
 CHAT_PORT = 5001
@@ -14,14 +15,12 @@ class P2PClient:
         self.discovery_socket.bind(('', DISCOVERY_PORT))
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
-        
-        self.thread1=None
-        self.thread2=None
 
     def start(self):
-        self.thread1=threading.Thread(target=self.discover_peers, daemon=True).start()
-        self.thread2=threading.Thread(target=self.listen_for_messages, daemon=True).start()
-        self.announce_presence()
+        threading.Thread(target=self.discover_peers, daemon=True).start()
+        threading.Thread(target=self.listen_for_messages, daemon=True).start()
+        threading.Thread(target=self.announce_presence, daemon=True).start()
+        # self.announce_presence()
         self.chat_loop()
 
     def discover_peers(self):
@@ -30,29 +29,20 @@ class P2PClient:
             message = json.loads(data.decode())
             if message['type'] == 'announce' and message['username'] != self.username:
                 self.peers[message['username']] = addr[0]
-                print(f"Discovered peer: {message['username']} at {addr[0]}")
+                # print(f"Discovered peer: {message['username']} at {addr[0]}")
 
     def announce_presence(self):
-        message = json.dumps({
-            'type': 'announce',
-            'username': self.username
-        })
-        self.discovery_socket.sendto(message.encode(), ('<broadcast>', DISCOVERY_PORT))
+        while True:
+            message = json.dumps({
+                'type': 'announce',
+                'username': self.username
+            })
+            self.discovery_socket.sendto(message.encode(), ('192.168.211.255', DISCOVERY_PORT))
+            time.sleep(2)
 
     def listen_for_messages(self):
         while True:
             data, addr = self.chat_socket.recvfrom(1024)
-            if self.thread1 and self.thread2:
-                self.thread1.stop()
-                self.thread1.join()
-                self.thread2.stop()
-                self.thread2.join()
-                
-                self.thread1.start()
-                self.thread2.start()
-            else:
-                print("empty threads")    
-            
             message = json.loads(data.decode())
             print(f"\n{message['from']}: {message['content']}")
 
