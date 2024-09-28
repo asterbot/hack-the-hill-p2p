@@ -9,16 +9,19 @@ def hash_file_blocks(file_path, block_size=512):
 
     # Create header
     header = {
-        "file_name": os.path.basename(file_path),
-        "file_size": file_size,
-        "number_of_blocks": num_blocks,
-        "block_size": block_size
+        "header":{
+            "file_name": os.path.basename(file_path),
+            "file_size": file_size,
+            "number_of_blocks": num_blocks,
+            "block_size": block_size,
+        },
+        "blocks":[]
     }
+    
 
     # Print header
-    print("Header:")
-    print(json.dumps(header, indent=2))
-    print("\nBlock Hashes:")
+    # print("Header:")
+    # print("\nBlock Hashes:")
 
     block_hashes = []
     with open(file_path, 'rb') as file:
@@ -26,9 +29,11 @@ def hash_file_blocks(file_path, block_size=512):
             block = file.read(block_size)
             block_hash = hashlib.sha256(block).hexdigest()
             block_hashes.append(block_hash)
-            print(f"Block {block_num + 1}: {block_hash}")
-
-    return header, block_hashes
+            # print(f"Block {block_num + 1}: {block_hash}")
+    header["blocks"] = block_hashes
+    print(json.dumps(header, indent=2))
+    
+    return header
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
