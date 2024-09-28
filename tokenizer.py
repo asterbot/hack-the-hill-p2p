@@ -3,7 +3,7 @@ import sys
 import os
 import json
 
-def hash_file_blocks(file_path, block_size=1024, chunk_size=512):
+def hash_file_blocks(file_path, block_size=512):
     file_size = os.path.getsize(file_path)
     num_blocks = (file_size + block_size - 1) // block_size  # Round up division
 
@@ -12,8 +12,7 @@ def hash_file_blocks(file_path, block_size=1024, chunk_size=512):
         "file_name": os.path.basename(file_path),
         "file_size": file_size,
         "number_of_blocks": num_blocks,
-        "block_size": block_size,
-        "chunk_size": chunk_size
+        "block_size": block_size
     }
 
     # Print header
@@ -25,14 +24,7 @@ def hash_file_blocks(file_path, block_size=1024, chunk_size=512):
     with open(file_path, 'rb') as file:
         for block_num in range(num_blocks):
             block = file.read(block_size)
-            block_hasher = hashlib.sha256()
-            
-            # Process the block in chunks
-            for i in range(0, len(block), chunk_size):
-                chunk = block[i:i+chunk_size]
-                block_hasher.update(chunk)
-            
-            block_hash = block_hasher.hexdigest()
+            block_hash = hashlib.sha256(block).hexdigest()
             block_hashes.append(block_hash)
             print(f"Block {block_num + 1}: {block_hash}")
 
