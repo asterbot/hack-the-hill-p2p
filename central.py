@@ -1,6 +1,6 @@
-# main.py
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import Dict, Set, List
 
 app = FastAPI()
 
@@ -10,8 +10,8 @@ class Block(BaseModel):
     ip: str
 
 
-# Dictionary to store id and associated IPs
-central_authority = {}
+# Dictionary to store id and associated IPs as a set
+central_authority: Dict[str, Set[str]] = {}
 
 
 @app.get("/")
@@ -21,14 +21,35 @@ def read_root():
 
 @app.post("/publish_id/")
 def create_item(data: Block):
-    # Check if the id already exists in central_authority
-    if data.id not in central_authority:
-        central_authority[data.id] = set()  # Initialize with an empty set
+    try:
+        # Initialize with an empty set if the ID does not exist
+        if data.id not in central_authority:
+            central_authority[data.id] = set()
 
-    # Append the new IP to the list
-    central_authority[data.id].add(data.ip)
+        # Add the new IP to the set
+        central_authority[data.id].add(data.ip)
 
-    # Print the central_authority dictionary to check the current state
-    print(central_authority)
+        # Convert sets to lists for JSON serialization
+        return {"message": "ok"}
+    except Exception as e:
+        print(e)
+        return {"error": e}
 
-    return {"message": "ok"}
+
+@app.get("/get_all/")
+def get_all_data() -> Dict[str, List[str]]:
+    try:
+        """Returns the entire central_authority dictionary as key-value pairs."""
+        return {key: list(value) for key, value in central_authority.items()}
+    except Exception as e:
+        print(e)
+        return {}
+
+
+@app.get("/get_ips/{block_id}")
+def get_ips(block_id: str) -> Dict[str, List[str]]:
+    """Returns the list of IPs associated with a specific ID."""
+    if block_id not in central_authority:
+        return {"error": "not found"}
+
+    return {block_id: list(central_authority[block_id])}
