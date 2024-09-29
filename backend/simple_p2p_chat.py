@@ -185,13 +185,19 @@ class P2PClient:
         with open(tmp_file_path, 'r') as f:
             content = json.loads(f.read())
 
+        filePath = os.path.join('sources', Path(
+            tmp_file_path).stem + '.hackthehill')
+
+        with open(filePath, 'r') as f:
+            fileWithExtension = json.loads(f.read())['header']['file_name']
+
         print("CONTENT:", content)
         s = ""
         for value in content.values():
             print("value:", value)
             s += value
 
-        with open(os.path.join('uploads', Path(tmp_file_path).stem + '.txt'), 'w+') as f:
+        with open(os.path.join('uploads', fileWithExtension), 'w+') as f:
             f.write(s)
 
 
