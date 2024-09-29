@@ -174,6 +174,18 @@ class P2PClient:
 
                 existing_files[file_fingerprint_hash] = [
                     target_file_name, fingerprint_file_name]
+    
+    def tmp_to_file(self, hth_file_path):
+        with open(hth_file_path, 'r') as f:
+            content=json.loads(f.read())
+
+        s=""
+        for value in content.values():
+            s+=value
+
+        with open(os.path.join('uploads',Path(hth_file_path).stem + '.txt'), 'w') as f:
+            f.write(s)
+        
 
 def idk():
     client = 'ok'

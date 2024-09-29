@@ -66,6 +66,8 @@ def receive_token():
          
     file_path = os.path.join('uploads',existing_files[file_hash])
     # file_path='file.txt'
+    
+    client.tmp_to_file(os.path.join('sources', Path(file_path).stem+'.hackthehill'))
 
     with open(file_path, 'rb') as f:
         file_data = f.read()
