@@ -31,7 +31,8 @@ export default function Home() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("File uploaded successfully:", data);
+        // console.log("File uploaded successfully:", data);
+        console.log(data.data)
       } else {
         console.error("Failed to upload file");
       }
