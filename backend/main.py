@@ -7,7 +7,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Define the folder to save uploaded files
-UPLOAD_FOLDER = 'uploads'
+# TODO: Modify UPLOAD_FOLDER to the path you wanna save the received file in locally
+UPLOAD_FOLDER = 'uploads'                       # NOTE: This is a placeholder
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Ensure the upload directory exists
@@ -39,7 +40,7 @@ def receive_token():
     # process file_hash here
     # and store result in file_path
     
-    file_path = "sample.hackthehill" # NOTE: placeholder
+    file_path = "sample.hackthehill" # NOTE: placeholder for file path
     
     
     with open(file_path, 'rb') as f:
