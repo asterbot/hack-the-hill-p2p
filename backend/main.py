@@ -8,6 +8,7 @@ import json
 
 from simple_p2p_chat import *
 
+
 app = Flask(__name__)
 CORS(app)
 
@@ -21,6 +22,7 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 data = dict()
+
 
 @app.route('/receive-file', methods=['POST'])
 def receive_file():
@@ -47,7 +49,7 @@ def receive_file():
 
 
 @app.route('/receive-token', methods=['POST'])
-async def receive_token():
+def receive_token():
     data = request.get_json()
     file_hash = data.get('final_id')
 
@@ -55,9 +57,10 @@ async def receive_token():
     # process file_hash here
     # and store result in file_path
     
-    await client.request_file_fingerprint(file_hash)
+    client.request_file_fingerprint(file_hash)
     
-    file_path = 'uploads/' + existing_files[file_hash]
+    print(existing_files)
+    file_path = os.path.join('uploads',existing_files[file_hash])
 
     with open(file_path, 'rb') as f:
         file_data = f.read()
@@ -70,10 +73,7 @@ async def receive_token():
         return jsonify({"error": "No ID provided"}), 400
 
 
-if __name__ == '__main__':
-    global client
+if __name__ == '__main__':    
     client = P2PClient()
     client.start()
-
-    
-    app.run(debug=True)
+    app.run(debug=False)

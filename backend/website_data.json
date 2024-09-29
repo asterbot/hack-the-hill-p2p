@@ -1,2 +1,6 @@
 {
+  "2170d5b53b9cbaf17a23201968516c9d8ae8ccb61df8f9e84f99df735ac3ddf8": {
+    "path": "uploads\\requirements.txt",
+    "hackthehill": "./sources/requirements.hackthehill"
+  }
 }
