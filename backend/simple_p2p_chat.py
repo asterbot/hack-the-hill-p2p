@@ -33,10 +33,11 @@ class P2PClient:
 
         self.index_files()
 
-        self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
-        self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
-        
-        
+        self.chat_socket.setsockopt(
+            socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
+        self.chat_socket.setsockopt(
+            socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
+
     def start(self):
         threading.Thread(target=self.discover_peers, daemon=True).start()
         threading.Thread(target=self.listen_for_messages, daemon=True).start()
@@ -119,11 +120,13 @@ class P2PClient:
     def save_fingerprint_file(self, message):
         with open(os.path.join('sources', message['file_name']), 'w') as f:
             f.write(message['content'])
-            
-        existing_files[message['file_id']] = [message['file_name'], Path(message['file_name']).stem + '.hackthehill']
+
+        existing_files[message['file_id']] = [
+            message['file_name'], Path(message['file_name']).stem + '.hackthehill']
 
     def save_block(self, message):
-        tmp_file_path = os.path.join('uploads', Path(message['file_name']).stem + '.tmp')
+        tmp_file_path = os.path.join('uploads', Path(
+            message['file_name']).stem + '.tmp')
         with open(tmp_file_path, 'w+') as f:
             file_content = f.read()
             if len(file_content) > 0:
@@ -136,7 +139,7 @@ class P2PClient:
             else:
                 d = {message['block_index']: message['block_data']}
                 f.write(json.dumps(d))
-                
+
     def get_all_blocks(self, message):
         print(message)
         file_id = message['file_id']
@@ -144,7 +147,7 @@ class P2PClient:
             d = json.loads(f.read())
             for block_index in range(int(d['header']['number_of_blocks'])):
                 self.request_block(file_id, block_index)
-            
+
     def listen_for_messages(self):
         while True:
             data, addr = self.chat_socket.recvfrom(MAX_UDP_PACKET)
@@ -159,10 +162,10 @@ class P2PClient:
                 self.save_fingerprint_file(message)
                 self.get_all_blocks(message)
             elif (message["type"] == "response_block"):
-                self.save_block(message) 
+                self.save_block(message)
             else:
                 print("Invalid message type: " + message["type"])
-    
+
     def index_files(self):
         for fingerprint_file_name in os.listdir("sources"):
             with open(os.path.join("sources", fingerprint_file_name), "r") as f:
@@ -174,23 +177,26 @@ class P2PClient:
 
                 existing_files[file_fingerprint_hash] = [
                     target_file_name, fingerprint_file_name]
-    
+
     def tmp_to_file(self, hth_file_path):
         with open(hth_file_path, 'r') as f:
-            content=json.loads(f.read())
+            content = json.loads(f.read())
 
-        s=""
+        s = ""
         for value in content.values():
-            s+=value
+            s += value
 
-        with open(os.path.join('uploads',Path(hth_file_path).stem + '.txt'), 'w') as f:
+        print(os.path.join('uploads', Path(hth_file_path).stem + '.txt'))
+
+        with open(os.path.join('uploads', Path(hth_file_path).stem + '.txt'), 'w+') as f:
             f.write(s)
-        
+
 
 def idk():
     client = 'ok'
     while True:
-        x = int(input("Enter 1 to request file fingerprint, 2 to request block, 3 hash the file: "))
+        x = int(input(
+            "Enter 1 to request file fingerprint, 2 to request block, 3 hash the file: "))
         if x == 1:
             file_id = input("File id: ")
             client.request_file_fingerprint(file_id)

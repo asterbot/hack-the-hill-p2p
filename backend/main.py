@@ -38,12 +38,13 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    with open("./sources/" + Path(file_path).stem + ".hackthehill",'r') as f:
+    with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r') as f:
         file_hash = hash(f.read())
-    
-    data[file_hash] = {'path': file_path, 'hackthehill': "./sources/" + Path(file_path).stem + ".hackthehill"}
+
+    data[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
+                       Path(file_path).stem + ".hackthehill"}
     print(data)
-    
+
     with open("website_data.json", "w") as f:
         f.write(json.dumps(data, indent=2))
 
@@ -58,16 +59,16 @@ def receive_token():
     # TODO
     # process file_hash here
     # and store result in file_path
-    
+
     client.request_file_fingerprint(file_hash)
-    
+
     while file_hash not in existing_files:
-        pass    
-         
-    file_path = os.path.join('uploads',existing_files[file_hash])
+        pass
+
+    file_path = os.path.join('uploads', existing_files[file_hash][0])
     # file_path='file.txt'
-    
-    client.tmp_to_file(os.path.join('sources', Path(file_path).stem+'.hackthehill'))
+
+    client.tmp_to_file(os.path.join('uploads', Path(file_path).stem+'.tmp'))
 
     with open(file_path, 'rb') as f:
         file_data = f.read()
@@ -80,7 +81,7 @@ def receive_token():
         return jsonify({"error": "No ID provided"}), 400
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     client = P2PClient()
     client.start()
     app.run(debug=False)
