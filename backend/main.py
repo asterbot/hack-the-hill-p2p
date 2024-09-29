@@ -38,7 +38,9 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    file_hash = tokenizer.hash_file_blocks(file_path)
+    with open("./sources/" + Path(file_path).stem + ".hackthehill",'r') as f:
+        file_hash = hash(f.read())
+    
     data[file_hash] = {'path': file_path, 'hackthehill': "./sources/" + Path(file_path).stem + ".hackthehill"}
     print(data)
     
