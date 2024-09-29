@@ -18,20 +18,23 @@ def hash_file_blocks(file_path, block_size=512):
             "number_of_blocks": num_blocks,
             "block_size": block_size,
         },
-        "blocks": []
+        "blocks": dict()
     }
 
     # Print header
     # print("Header:")
     # print("\nBlock Hashes:")
 
-    block_hashes = []
+    block_hashes = dict()
+    index = 0
+
     with open(file_path, 'rb') as file:
         for block_num in range(num_blocks):
             block = file.read(block_size)
             block_hash = hashlib.sha256(block).hexdigest()
-            block_hashes.append(block_hash)
-            # print(f"Block {block_num + 1}: {block_hash}")
+            block_hashes[index] = block_hash
+            index += 1
+
     header["blocks"] = block_hashes
     
     hash_block = json.dumps(header, indent=2)
