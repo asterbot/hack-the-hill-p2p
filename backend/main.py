@@ -4,6 +4,7 @@ from flask_cors import CORS
 import io
 import tokenizer
 from pathlib import Path
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -36,6 +37,9 @@ def receive_file():
     file_hash = tokenizer.hash_file_blocks(file_path)
     data[file_hash] = {'path': file_path, 'hackthehill': "./sources/" + Path(file_path).stem + ".hackthehill"}
     print(data)
+    
+    with open("website_data.json", "w") as f:
+        f.write(json.dumps(data, indent=2))
 
     return jsonify({"status": "File uploaded", "file_path": file_path, "data": data}), 200
 
