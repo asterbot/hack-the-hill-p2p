@@ -57,7 +57,7 @@ class P2PClient:
                 'user_id': self.user_id,
             })
             self.discovery_socket.sendto(
-                response.encode(), ('192.168.211.255', DISCOVERY_PORT))
+                response.encode(), ('192.168.211.249', DISCOVERY_PORT))
             time.sleep(2)
 
     def request_file_fingerprint(self, file_id):
