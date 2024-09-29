@@ -98,9 +98,6 @@ class P2PClient:
                     response.encode(), (caller_ip, CHAT_PORT))
         except Exception as e:
             print(e)
-            # file doesn't exist error, doesn't need to show
-            print("GUYSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
-            pass
 
     def response_block(self, message):
         file_id = message["file_id"]
@@ -160,20 +157,23 @@ class P2PClient:
             message = json.loads(data.decode())
             print(message)
 
-            if (message["type"] == "request_file_fingerprint"):
-                self.response_file_fingerprint(message)
-            elif (message["type"] == "request_block"):
-                self.response_block(message)
-            elif (message["type"] == "response_file_fingerprint"):
-                self.save_fingerprint_file(message)
-                self.get_all_blocks(message)
-            elif (message["type"] == "response_block"):
-                self.save_block(message)
-                self.tmp_to_file(os.path.join(
-                    'uploads', Path(message['file_name']).stem+'.tmp'))
-
+            user_id = message["user_id"]
+            if (user_id in self.peers):
+                if (message["type"] == "request_file_fingerprint"):
+                    self.response_file_fingerprint(message)
+                elif (message["type"] == "request_block"):
+                    self.response_block(message)
+                elif (message["type"] == "response_file_fingerprint"):
+                    self.save_fingerprint_file(message)
+                    self.get_all_blocks(message)
+                elif (message["type"] == "response_block"):
+                    self.save_block(message)
+                    self.tmp_to_file(os.path.join(
+                        'uploads', Path(message['file_name']).stem+'.tmp'))
+                else:
+                    print("Invalid message type: " + message["type"])
             else:
-                print("Invalid message type: " + message["type"])
+                print("User id " + user_id + " is not in the peers")
 
     def index_files(self):
         for fingerprint_file_name in os.listdir("sources"):
