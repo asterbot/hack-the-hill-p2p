@@ -51,8 +51,8 @@ class P2PClient:
             time.sleep(2)
 
     # Ask all discovered peers for the file fingerprint
-    def request_file_fingerprint(self, message):
-        file_id = message["file_id"]
+    def request_file_fingerprint(self, file_id):
+        # file_id = message["file_id"]
 
         for ip in self.peers.values():
             message = json.dumps({
@@ -63,9 +63,9 @@ class P2PClient:
             self.chat_socket.sendto(message.encode(), (ip, CHAT_PORT))
 
     # Ask all discovered peers for the block data
-    def request_block(self, message):
-        file_id = message["file_id"]
-        block_index = message["block_index"]
+    def request_block(self, file_id, block_index):
+        # file_id = message["file_id"]
+        # block_index = message["block_index"]
 
         # asking all peers for the file_id
         # TODO make it so that only one returns it at the time
@@ -143,3 +143,14 @@ if __name__ == "__main__":
 
     client = P2PClient()
     client.start()
+    while True:
+        x = int(input("Enter 1 to request file fingerprint, 2 to request block, 3 to quit: "))
+        if x==1:
+            file_id = input("File id: ")
+            client.request_file_fingerprint(file_id)
+        if x==2:
+            file_id = input("File id: ")
+            block_index = input("Block index: ")
+            client.request_block(file_id, block_index)
+        if x==3:
+            break
