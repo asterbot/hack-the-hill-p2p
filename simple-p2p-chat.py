@@ -45,6 +45,7 @@ class P2PClient:
         while True:
             data, addr = self.chat_socket.recvfrom(1024)
             message = json.loads(data.decode())
+            message
             print(f"\n{message['from']}: {message['content']}")
 
     def request_id(self, file_id):
