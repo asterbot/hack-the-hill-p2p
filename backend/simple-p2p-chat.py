@@ -108,7 +108,7 @@ class P2PClient:
         target_file_name = existing_files[file_id][0]
 
         block_data = tokenizer.get_block_content(
-            "./sources/" + target_file_name, block_index)
+            "./uploads/" + target_file_name, block_index)
 
         message = json.dumps({
             'user_id': self.user_id,
@@ -123,7 +123,7 @@ class P2PClient:
         self.chat_socket.sendto(message.encode(), (caller_ip, CHAT_PORT))
 
     def save_fingerprint_file(self, message):
-        with open('./source/' + message['file_name'], 'w') as f:
+        with open('./sources/' + message['file_name'], 'w') as f:
             f.write(message['content'])
 
     def listen_for_messages(self):
