@@ -6,6 +6,8 @@ import tokenizer
 from pathlib import Path
 import json
 
+from simple_p2p_chat import *
+
 app = Flask(__name__)
 CORS(app)
 
@@ -45,15 +47,17 @@ def receive_file():
 
 
 @app.route('/receive-token', methods=['POST'])
-def receive_token():
+async def receive_token():
     data = request.get_json()
     file_hash = data.get('final_id')
 
     # TODO
     # process file_hash here
     # and store result in file_path
-
-    file_path = "sample.hackthehill"  # NOTE: placeholder for file path
+    
+    await client.request_file_fingerprint(file_hash)
+    
+    file_path = 'uploads/' + existing_files[file_hash]
 
     with open(file_path, 'rb') as f:
         file_data = f.read()
@@ -67,4 +71,9 @@ def receive_token():
 
 
 if __name__ == '__main__':
+    global client
+    client = P2PClient()
+    client.start()
+
+    
     app.run(debug=True)

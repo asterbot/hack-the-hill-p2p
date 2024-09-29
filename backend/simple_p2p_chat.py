@@ -31,9 +31,11 @@ class P2PClient:
         self.discovery_socket.bind(('', DISCOVERY_PORT))
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
+        self.index_existing_files()
 
         self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
         self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
+        
         
     def start(self):
         threading.Thread(target=self.discover_peers, daemon=True).start()
@@ -171,22 +173,21 @@ class P2PClient:
             else:
                 print("Invalid message type: " + message["type"])
 
+    def index_existing_files(self):
+        for fingerprint_file_name in listdir("./sources/"):
+            with open("./sources/" + fingerprint_file_name, "r") as f:
+                file_fingerprint_content = f.read()
+                file_fingerprint_data = json.loads(file_fingerprint_content)
 
-if __name__ == "__main__":
+                file_fingerprint_hash = hash(file_fingerprint_content)
+                target_file_name = file_fingerprint_data["header"]["file_name"]
 
-    for fingerprint_file_name in listdir("./sources/"):
-        with open("./sources/" + fingerprint_file_name, "r") as f:
-            file_fingerprint_content = f.read()
-            file_fingerprint_data = json.loads(file_fingerprint_content)
+                existing_files[file_fingerprint_hash] = [
+                    target_file_name, fingerprint_file_name]
 
-            file_fingerprint_hash = hash(file_fingerprint_content)
-            target_file_name = file_fingerprint_data["header"]["file_name"]
 
-            existing_files[file_fingerprint_hash] = [
-                target_file_name, fingerprint_file_name]
-
-    client = P2PClient()
-    client.start()
+def idk():
+    client='ok'
     while True:
         x = int(
             input("Enter 1 to request file fingerprint, 2 to request block, 3 hash the file: "))
@@ -201,3 +202,7 @@ if __name__ == "__main__":
             with open('sources/file.hackthehill', 'r') as f:
                 print(hash(f.read()))
             # print(tokenizer.hash_file_blocks('sources/file.hackthehill'))
+
+    
+    
+
