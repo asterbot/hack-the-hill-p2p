@@ -62,22 +62,6 @@ class P2PClient:
             })
             self.chat_socket.sendto(message.encode(), (ip, CHAT_PORT))
 
-    # Answering the file fingeprint request
-    def response_file_fingerprint(self, message):
-        file_id = message["file_id"]
-        caller_ip = message["origin_ip"]
-        if (file_id in existing_files):
-            file_fingerprint_name = './sources/' + existing_files[file_id]
-            with open(file_fingerprint_name, "r") as f:
-
-                message = json.dumps({
-                    'origin_ip': self.ip,
-                    'type': 'reponse_file_fingerprint',
-                    'content': f.read()
-                })
-                self.chat_socket.sendto(
-                    message.encode(), (caller_ip, CHAT_PORT))
-
     # Ask all discovered peers for the block data
     def request_block(self, message):
         file_id = message["file_id"]
@@ -93,6 +77,22 @@ class P2PClient:
                 'block_index': block_index
             })
             self.chat_socket.sendto(message.encode(), (ip, CHAT_PORT))
+
+    # Answering the file fingeprint request
+    def response_file_fingerprint(self, message):
+        file_id = message["file_id"]
+        caller_ip = message["origin_ip"]
+        if (file_id in existing_files):
+            file_fingerprint_name = './sources/' + existing_files[file_id]
+            with open(file_fingerprint_name, "r") as f:
+
+                message = json.dumps({
+                    'origin_ip': self.ip,
+                    'type': 'reponse_file_fingerprint',
+                    'content': f.read()
+                })
+                self.chat_socket.sendto(
+                    message.encode(), (caller_ip, CHAT_PORT))
 
     def response_block(self, message):
         file_id = message["file_id"]
@@ -121,12 +121,8 @@ class P2PClient:
             print(message)
 
             if (message["type"] == "request_file_fingerprint"):
-                self.request_file_fingerprint(message)
-            elif (message["type"] == "request_block"):
-                self.request_block(message)
-            elif (message["type"] == "response_file_fingerprint"):
                 self.response_file_fingerprint(message)
-            elif (message["type"] == "response_block"):
+            elif (message["type"] == "request_block"):
                 self.response_block(message)
             else:
                 print("Invalid message type: " + message["type"])
