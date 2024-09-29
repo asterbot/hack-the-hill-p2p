@@ -31,8 +31,11 @@ class P2PClient:
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
 
+        self.index_files()
+
         self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
         self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
+        
         
     def start(self):
         threading.Thread(target=self.discover_peers, daemon=True).start()
@@ -116,6 +119,8 @@ class P2PClient:
     def save_fingerprint_file(self, message):
         with open(os.path.join('sources', message['file_name']), 'w') as f:
             f.write(message['content'])
+            
+        existing_files[message['file_id']] = [message['file_name'], Path(message['file_name']).stem + '.hackthehill']
 
     def save_block(self, message):
         tmp_file_path = os.path.join('uploads', Path(message['file_name']).stem + '.tmp')
@@ -157,6 +162,18 @@ class P2PClient:
                 self.save_block(message) 
             else:
                 print("Invalid message type: " + message["type"])
+    
+    def index_files(self):
+        for fingerprint_file_name in os.listdir("sources"):
+            with open(os.path.join("sources", fingerprint_file_name), "r") as f:
+                file_fingerprint_content = f.read()
+                file_fingerprint_data = json.loads(file_fingerprint_content)
+
+                file_fingerprint_hash = hash(file_fingerprint_content)
+                target_file_name = file_fingerprint_data["header"]["file_name"]
+
+                existing_files[file_fingerprint_hash] = [
+                    target_file_name, fingerprint_file_name]
 
 def idk():
     client = 'ok'
@@ -172,22 +189,3 @@ def idk():
         if x == 3:
             with open(os.path.join('sources', 'file.hackthehill'), 'r') as f:
                 print(hash(f.read()))
-
-async def get_text_file(file_id):
-    for fingerprint_file_name in os.listdir("sources"):
-        with open(os.path.join("sources", fingerprint_file_name), "r") as f:
-            file_fingerprint_content = f.read()
-            file_fingerprint_data = json.loads(file_fingerprint_content)
-
-            file_fingerprint_hash = hash(file_fingerprint_content)
-            target_file_name = file_fingerprint_data["header"]["file_name"]
-
-            existing_files[file_fingerprint_hash] = [
-                target_file_name, fingerprint_file_name]
-
-    client = P2PClient()
-    client.start()
-
-    await client.request_file_fingerprint(file_id)
-    
-    return os.path.join('uploads', existing_files[file_id])

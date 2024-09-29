@@ -59,18 +59,20 @@ def receive_token():
     
     client.request_file_fingerprint(file_hash)
     
-    print(existing_files)
-    file_path = os.path.join('uploads',existing_files[file_hash])
+    while existing_files!=[]:
+    
+        # file_path = os.path.join('uploads',existing_files[file_hash])
+        file_path='file.txt'
 
-    with open(file_path, 'rb') as f:
-        file_data = f.read()
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
 
-    file_blob = io.BytesIO(file_data)
+        file_blob = io.BytesIO(file_data)
 
-    if file_hash:
-        return send_file(file_blob, as_attachment=True, download_name='example.txt', mimetype='text/plain'), 200
-    else:
-        return jsonify({"error": "No ID provided"}), 400
+        if file_hash:
+            return send_file(file_blob, as_attachment=True, download_name='example.txt', mimetype='text/plain'), 200
+        else:
+            return jsonify({"error": "No ID provided"}), 400
 
 
 if __name__ == '__main__':    
