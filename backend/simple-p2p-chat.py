@@ -44,6 +44,7 @@ class P2PClient:
     def listen_for_messages(self):
         while True:
             data, addr = self.chat_socket.recvfrom(1024)
+            print(type(data))
             message = json.loads(data.decode())
             print(f"\n{message['from']}: {message['content']}")
 
