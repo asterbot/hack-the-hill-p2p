@@ -45,7 +45,7 @@ def receive_file():
 
     fileData[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
                            Path(file_path).stem + ".hackthehill"}
-    print(fileData)
+    # print(fileData)
 
     with open("website_data.json", "w") as f:
         f.write(json.dumps(fileData, indent=2))
@@ -64,10 +64,12 @@ def receive_token():
 
     client.request_file_fingerprint(file_hash)
 
-    while file_hash not in existing_files:
-        pass
+    files = get_filename_by_file_id(file_hash)
+    if (files is None):
+        print("Could not find the fucking file with file id " + file_hash)
+        return jsonify({"error": "Can't find file hash"}), 400
 
-    file_path = os.path.join('sources', existing_files[file_hash][1])
+    file_path = os.path.join('sources', files[1])
     # file_path='file.txt'
 
     with open(file_path, 'r') as f:
@@ -77,7 +79,6 @@ def receive_token():
         file_data = f.read()
 
     file_blob = io.BytesIO(file_data)
-    
 
     if file_hash:
         return send_file(file_blob, as_attachment=True, download_name=fileWithExtension, mimetype='text/plain'), 200
