@@ -65,7 +65,7 @@ def receive_token():
     while file_hash not in existing_files:
         pass
 
-    file_path = os.path.join('uploads', existing_files[file_hash][0])
+    file_path = os.path.join('sources', existing_files[file_hash][1])
     # file_path='file.txt'
 
     client.tmp_to_file(os.path.join('uploads', Path(file_path).stem+'.tmp'))
