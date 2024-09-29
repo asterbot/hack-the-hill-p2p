@@ -3,3 +3,5 @@ uvicorn
 asyncio
 aioice
 uuid
+flask 
+flask_cors
