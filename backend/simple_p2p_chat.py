@@ -85,7 +85,7 @@ class P2PClient:
         caller_ip = self.peers[message["user_id"]]
         # if (file_id in existing_files):
         try:
-            file_fingerprint_name = existing_files[file_id][1]
+            file_fingerprint_name = existing_files[file_id][0]
             with open(os.path.join('sources', file_fingerprint_name), "r") as f:
                 response = json.dumps({
                     'file_name': file_fingerprint_name,
@@ -122,7 +122,7 @@ class P2PClient:
         self.chat_socket.sendto(response.encode(), (caller_ip, CHAT_PORT))
 
     def save_fingerprint_file(self, message):
-        with open(os.path.join('sources', message['file_name']), 'w') as f:
+        with open(os.path.join('sources',  Path(message['file_name']).stem + '.hackthehill'), 'w') as f:
             f.write(message['content'])
 
         existing_files[message['file_id']] = [
@@ -147,7 +147,7 @@ class P2PClient:
     def get_all_blocks(self, message):
         print(message)
         file_id = message['file_id']
-        with open(os.path.join('sources', message['file_name']), 'r') as f:
+        with open(os.path.join('sources', Path(message['file_name']).stem + '.hackthehill'), 'r') as f:
             d = json.loads(f.read())
             for block_index in range(int(d['header']['number_of_blocks'])):
                 self.request_block(file_id, block_index)
