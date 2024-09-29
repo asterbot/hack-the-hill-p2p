@@ -163,6 +163,9 @@ class P2PClient:
                 self.get_all_blocks(message)
             elif (message["type"] == "response_block"):
                 self.save_block(message)
+                self.tmp_to_file(os.path.join(
+                    'sources', Path(message['file_name']).stem+'.hackthehill'))
+
             else:
                 print("Invalid message type: " + message["type"])
 

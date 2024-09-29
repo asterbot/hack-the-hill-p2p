@@ -38,8 +38,7 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r') as f:
-        file_hash = hash(f.read())
+    file_hash = tokenizer.hash_file_blocks(file_path)
 
     data[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
                        Path(file_path).stem + ".hackthehill"}
@@ -67,9 +66,7 @@ def receive_token():
 
     file_path = os.path.join('uploads', existing_files[file_hash][0])
     # file_path='file.txt'
-
-    client.tmp_to_file(os.path.join('uploads', Path(file_path).stem+'.tmp'))
-
+    
     with open(file_path, 'rb') as f:
         file_data = f.read()
 
