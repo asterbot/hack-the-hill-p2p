@@ -57,7 +57,7 @@ class P2PClient:
                 'user_id': self.user_id,
             })
             self.discovery_socket.sendto(
-                response.encode(), ('192.168.211.255', DISCOVERY_PORT))
+                response.encode(), ('192.168.181.255', DISCOVERY_PORT))
             time.sleep(2)
 
     def request_file_fingerprint(self, file_id):
@@ -82,9 +82,9 @@ class P2PClient:
     def response_file_fingerprint(self, message):
         file_id = message["file_id"]
 
-        caller_ip = self.peers[message["user_id"]]
         # if (file_id in existing_files):
         try:
+            caller_ip = self.peers[message["user_id"]]
             file_name = existing_files[file_id][0]
             with open(os.path.join('sources', Path(file_name).stem + ".hackthehill"), "r") as f:
                 response = json.dumps({
@@ -96,7 +96,8 @@ class P2PClient:
                 })
                 self.chat_socket.sendto(
                     response.encode(), (caller_ip, CHAT_PORT))
-        except:
+        except Exception as e:
+            print(e)
             # file doesn't exist error, doesn't need to show
             print("GUYSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
             pass
