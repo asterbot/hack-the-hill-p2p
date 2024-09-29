@@ -51,7 +51,7 @@ class P2PClient:
         while True:
             response = json.dumps({
                 'type': 'announce',
-                'user_id': self.user_id
+                'user_id': self.user_id,
             })
             self.discovery_socket.sendto(
                 response.encode(), ('192.168.211.255', DISCOVERY_PORT))
@@ -81,7 +81,7 @@ class P2PClient:
                 'user_id': self.user_id,
                 'type': 'request_block',
                 'file_id': file_id,
-                'block_index': block_index
+                'block_index': block_index,
             })
             self.chat_socket.sendto(message.encode(), (ip, CHAT_PORT))
 
@@ -94,14 +94,15 @@ class P2PClient:
             file_fingerprint_name = existing_files[file_id][1]
             with open('./sources/' + file_fingerprint_name, "r") as f:
 
-                message = json.dumps({
+                response = json.dumps({
                     'file_name': file_fingerprint_name,
                     'user_id': self.user_id,
                     'type': 'response_file_fingerprint',
-                    'content': f.read()
+                    'content': f.read(),
+                    'file_id': file_id
                 })
                 self.chat_socket.sendto(
-                    message.encode(), (caller_ip, CHAT_PORT))
+                    response.encode(), (caller_ip, CHAT_PORT))
 
     def response_block(self, message):
         file_id = message["file_id"]
@@ -140,6 +141,16 @@ class P2PClient:
                 d = {message['block_index']:message['block_data']}
                 f.write(json.dumps(d))
                 
+    
+    def get_all_blocks(self,message):
+        print(message)
+        file_id = message['file_id']
+        with open('./sources/'+message['file_name'], 'r') as f:
+            d = json.loads(f.read())
+            for block_index in range(int(d['header']['number_of_blocks'])):
+                self.request_block(file_id, block_index)
+            
+                
     def listen_for_messages(self):
         while True:
             data, addr = self.chat_socket.recvfrom(MAX_UDP_PACKET)
@@ -152,7 +163,10 @@ class P2PClient:
                 self.response_block(message)
             elif (message["type"] == "response_file_fingerprint"):
                 self.save_fingerprint_file(message)
+                self.get_all_blocks(message)
+                
             elif (message["type"] == "response_block"):
+                
                 self.save_block(message) 
             else:
                 print("Invalid message type: " + message["type"])
