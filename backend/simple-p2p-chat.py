@@ -11,6 +11,7 @@ DISCOVERY_PORT = 5000
 CHAT_PORT = 5001
 
 existing_files = dict()
+MAX_UDP_PACKET = 65507
 
 
 def hash(input):
@@ -30,7 +31,6 @@ class P2PClient:
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
 
-        MAX_UDP_PACKET = 65507
         self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
         self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
         
@@ -41,7 +41,7 @@ class P2PClient:
 
     def discover_peers(self):
         while True:
-            data, addr = self.discovery_socket.recvfrom(1024)
+            data, addr = self.discovery_socket.recvfrom(MAX_UDP_PACKET)
             message = json.loads(data.decode())
             if message['type'] == 'announce' and message['user_id'] != self.user_id:
                 self.peers[message['user_id']] = addr[0]
@@ -94,8 +94,9 @@ class P2PClient:
             with open(file_fingerprint_name, "r") as f:
 
                 message = json.dumps({
+                    'file_name': file_fingerprint_name,
                     'user_id': self.user_id,
-                    'type': 'reponse_file_fingerprint',
+                    'type': 'response_file_fingerprint',
                     'content': f.read()
                 })
                 self.chat_socket.sendto(
@@ -121,9 +122,13 @@ class P2PClient:
 
         self.chat_socket.sendto(message.encode(), (caller_ip, CHAT_PORT))
 
+    def save_fingerprint_file(self, message):
+        with open('./source/' + message['file_name'], 'w') as f:
+            f.write(message['content'])
+
     def listen_for_messages(self):
         while True:
-            data, addr = self.chat_socket.recvfrom(1024)
+            data, addr = self.chat_socket.recvfrom(MAX_UDP_PACKET)
             message = json.loads(data.decode())
             print(message)
 
@@ -131,6 +136,8 @@ class P2PClient:
                 self.response_file_fingerprint(message)
             elif (message["type"] == "request_block"):
                 self.response_block(message)
+            elif (message["type"] == "response_file_fingerprint"):
+                self.save_fingerprint_file(message)
             else:
                 print("Invalid message type: " + message["type"])
 
