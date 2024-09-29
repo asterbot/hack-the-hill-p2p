@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import io
 import tokenizer
+from pathlib import Path
 
 app = Flask(__name__)
 CORS(app)
@@ -16,6 +17,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+data = dict()
 
 @app.route('/receive-file', methods=['POST'])
 def receive_file():
@@ -32,9 +34,10 @@ def receive_file():
     file.save(file_path)
 
     file_hash = tokenizer.hash_file_blocks(file_path)
-    print(file_hash)
+    data[file_hash] = {'path': file_path, 'hackthehill': "./sources/" + Path(file_path).stem + ".hackthehill"}
+    print(data)
 
-    return jsonify({"status": "File uploaded", "file_path": file_path}), 200
+    return jsonify({"status": "File uploaded", "file_path": file_path, "data": data}), 200
 
 
 @app.route('/receive-token', methods=['POST'])
