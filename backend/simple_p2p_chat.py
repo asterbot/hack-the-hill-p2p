@@ -200,6 +200,9 @@ class P2PClient:
         with open(os.path.join('uploads', fileWithExtension), 'w+') as f:
             f.write(s)
 
+        # remove .temp file
+        os.remove(tmp_file_path)
+
 
 def idk():
     client = 'ok'
