@@ -164,7 +164,7 @@ class P2PClient:
             elif (message["type"] == "response_block"):
                 self.save_block(message)
                 self.tmp_to_file(os.path.join(
-                    'sources', Path(message['file_name']).stem+'.hackthehill'))
+                    'uploads', Path(message['file_name']).stem+'.tmp'))
 
             else:
                 print("Invalid message type: " + message["type"])
@@ -181,17 +181,17 @@ class P2PClient:
                 existing_files[file_fingerprint_hash] = [
                     target_file_name, fingerprint_file_name]
 
-    def tmp_to_file(self, hth_file_path):
-        with open(hth_file_path, 'r') as f:
+    def tmp_to_file(self, tmp_file_path):
+        with open(tmp_file_path, 'r') as f:
             content = json.loads(f.read())
 
+        print("CONTENT:", content)
         s = ""
         for value in content.values():
+            print("value:", value)
             s += value
 
-        print(os.path.join('uploads', Path(hth_file_path).stem + '.txt'))
-
-        with open(os.path.join('uploads', Path(hth_file_path).stem + '.txt'), 'w+') as f:
+        with open(os.path.join('uploads', Path(tmp_file_path).stem + '.txt'), 'w+') as f:
             f.write(s)
 
 
