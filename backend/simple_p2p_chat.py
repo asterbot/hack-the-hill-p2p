@@ -98,6 +98,7 @@ class P2PClient:
                     response.encode(), (caller_ip, CHAT_PORT))
         except:
             # file doesn't exist error, doesn't need to show
+            print("GUYSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
             pass
 
     def response_block(self, message):
