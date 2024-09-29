@@ -129,12 +129,17 @@ class P2PClient:
             f.write(message['content'])
 
     def save_block(self,message):
-        with open('./uploads/' + Path(message['file_name']).stem + '.tmp', 'rw') as f:
-            content = json.loads(f.read())
-            if message['block_index'] not in content:
-                content[message['block_index']] = message['block_data']
-                f.write(json.dumps(content))
-
+        with open('./uploads/' + Path(message['file_name']).stem + '.tmp', 'w+') as f:
+            file_content = f.read()
+            if len(file_content)>0:
+                content = json.loads(f.read())
+                if message['block_index'] not in content:
+                    content[message['block_index']] = message['block_data']
+                    f.write(json.dumps(content))
+            else:
+                d = {message['block_index']:message['block_data']}
+                f.write(json.dumps(d))
+                
     def listen_for_messages(self):
         while True:
             data, addr = self.chat_socket.recvfrom(MAX_UDP_PACKET)
