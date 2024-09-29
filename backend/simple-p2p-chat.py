@@ -6,6 +6,7 @@ from os import listdir
 import hashlib
 import tokenizer
 import uuid
+from pathlib import Path
 
 DISCOVERY_PORT = 5000
 CHAT_PORT = 5001
@@ -111,8 +112,9 @@ class P2PClient:
             "./uploads/" + target_file_name, block_index)
 
         response = json.dumps({
+            'file_name': target_file_name,
             'user_id': self.user_id,
-            'type': 'respond_block',
+            'type': 'response_block',
             'file_id': file_id,
             'block_index': block_index,
             'block_data': str(block_data, 'utf-8')
@@ -126,6 +128,13 @@ class P2PClient:
         with open('./sources/' + message['file_name'], 'w') as f:
             f.write(message['content'])
 
+    def save_block(self,message):
+        with open('./uploads/' + Path(message['file_name']).stem + '.tmp', 'rw') as f:
+            content = json.loads(f.read())
+            if message['block_index'] not in content:
+                content[message['block_index']] = message['block_data']
+                f.write(json.dumps(content))
+
     def listen_for_messages(self):
         while True:
             data, addr = self.chat_socket.recvfrom(MAX_UDP_PACKET)
@@ -138,6 +147,8 @@ class P2PClient:
                 self.response_block(message)
             elif (message["type"] == "response_file_fingerprint"):
                 self.save_fingerprint_file(message)
+            elif (message["type"] == "response_block"):
+                self.save_block(message) 
             else:
                 print("Invalid message type: " + message["type"])
 
