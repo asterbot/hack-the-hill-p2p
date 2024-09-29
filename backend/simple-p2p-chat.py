@@ -22,7 +22,7 @@ class P2PClient:
     def __init__(self):
 
         self.user_id = uuid.uuid1().__str__()
-        self.peers = {}
+        self.peers = dict()
         self.discovery_socket = socket.socket(
             socket.AF_INET, socket.SOCK_DGRAM)
         self.discovery_socket.setsockopt(
@@ -48,12 +48,12 @@ class P2PClient:
 
     def announce_presence(self):
         while True:
-            message = json.dumps({
+            response = json.dumps({
                 'type': 'announce',
                 'user_id': self.user_id
             })
             self.discovery_socket.sendto(
-                message.encode(), ('192.168.211.255', DISCOVERY_PORT))
+                response.encode(), ('192.168.211.255', DISCOVERY_PORT))
             time.sleep(2)
 
     # Ask all discovered peers for the file fingerprint
@@ -61,12 +61,12 @@ class P2PClient:
         # file_id = message["file_id"]
 
         for ip in self.peers.values():
-            message = json.dumps({
+            response = json.dumps({
                 'user_id': self.user_id,
                 'type': 'request_file_fingerprint',
                 'file_id': file_id
             })
-            self.chat_socket.sendto(message.encode(), (ip, CHAT_PORT))
+            self.chat_socket.sendto(response.encode(), (ip, CHAT_PORT))
 
     # Ask all discovered peers for the block data
     def request_block(self, file_id, block_index):
@@ -110,17 +110,17 @@ class P2PClient:
         block_data = tokenizer.get_block_content(
             "./uploads/" + target_file_name, block_index)
 
-        message = json.dumps({
+        response = json.dumps({
             'user_id': self.user_id,
             'type': 'respond_block',
             'file_id': file_id,
             'block_index': block_index,
-            'block_data': block_data
+            'block_data': str(block_data, 'utf-8')
         })
 
         caller_ip = self.peers[message["user_id"]]
 
-        self.chat_socket.sendto(message.encode(), (caller_ip, CHAT_PORT))
+        self.chat_socket.sendto(response.encode(), (caller_ip, CHAT_PORT))
 
     def save_fingerprint_file(self, message):
         with open('./sources/' + message['file_name'], 'w') as f:

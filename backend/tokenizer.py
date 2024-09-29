@@ -46,6 +46,7 @@ def hash_file_blocks(file_path, block_size=512):
 
 
 def get_block_content(file_path, block_index, block_size=512):
+    block_index = int(block_index)
     file_size = os.path.getsize(file_path)
     num_blocks = (file_size + block_size - 1) // block_size
 
