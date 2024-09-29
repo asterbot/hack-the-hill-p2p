@@ -86,9 +86,9 @@ class P2PClient:
         # if (file_id in existing_files):
         try:
             file_name = existing_files[file_id][0]
-            with open(os.path.join('sources', Path(file_fingerprint_name).stem + ".hackthehill"), "r") as f:
+            with open(os.path.join('sources', Path(file_name).stem + ".hackthehill"), "r") as f:
                 response = json.dumps({
-                    'file_name': file_fingerprint_name,
+                    'file_name': file_name,
                     'user_id': self.user_id,
                     'type': 'response_file_fingerprint',
                     'content': f.read(),
