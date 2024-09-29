@@ -1,6 +1,6 @@
 {
-  "4c24cb3ba8c77af3f3f7a9387e811756aed35388c900d44ed88b7017e988ccc1": {
-    "path": "uploads\\requirements.txt",
-    "hackthehill": "./sources/requirements.hackthehill"
+  "718d4667594683f9316329dff77bf831e49625921c0eb6d465765b8adb232a63": {
+    "path": "uploads/hello.txt",
+    "hackthehill": "./sources/hello.hackthehill"
   }
 }

@@ -83,18 +83,18 @@ class P2PClient:
         file_id = message["file_id"]
 
         caller_ip = self.peers[message["user_id"]]
-        if (file_id in existing_files):
-            file_fingerprint_name = existing_files[file_id][1]
-            with open(os.path.join('sources', file_fingerprint_name), "r") as f:
-                response = json.dumps({
-                    'file_name': file_fingerprint_name,
-                    'user_id': self.user_id,
-                    'type': 'response_file_fingerprint',
-                    'content': f.read(),
-                    'file_id': file_id
-                })
-                self.chat_socket.sendto(
-                    response.encode(), (caller_ip, CHAT_PORT))
+        # if (file_id in existing_files):
+        file_fingerprint_name = existing_files[file_id][1]
+        with open(os.path.join('sources', file_fingerprint_name), "r") as f:
+            response = json.dumps({
+                'file_name': file_fingerprint_name,
+                'user_id': self.user_id,
+                'type': 'response_file_fingerprint',
+                'content': f.read(),
+                'file_id': file_id
+            })
+            self.chat_socket.sendto(
+                response.encode(), (caller_ip, CHAT_PORT))
 
     def response_block(self, message):
         file_id = message["file_id"]
@@ -163,6 +163,9 @@ class P2PClient:
                 self.get_all_blocks(message)
             elif (message["type"] == "response_block"):
                 self.save_block(message)
+                self.tmp_to_file(os.path.join(
+                    'uploads', Path(message['file_name']).stem+'.tmp'))
+
             else:
                 print("Invalid message type: " + message["type"])
 
@@ -178,22 +181,23 @@ class P2PClient:
                 existing_files[file_fingerprint_hash] = [
                     target_file_name, fingerprint_file_name]
 
-    def tmp_to_file(self, hth_file_path):
-        with open(hth_file_path, 'r') as f:
+    def tmp_to_file(self, tmp_file_path):
+        with open(tmp_file_path, 'r') as f:
             content = json.loads(f.read())
 
+        filePath = os.path.join('sources', Path(
+            tmp_file_path).stem + '.hackthehill')
+
+        with open(filePath, 'r') as f:
+            fileWithExtension = json.loads(f.read())['header']['file_name']
+
+        print("CONTENT:", content)
         s = ""
         for value in content.values():
+            print("value:", value)
             s += value
 
-        print("HERE: ",s)
-
-        with open(os.path.join('sources', Path(hth_file_path).stem + '.hackthehill'), 'r') as f:
-            # print("HERE:", hth_file_path)
-            # print("HERE:",json.loads(f.read()))
-            original_file_name = json.loads(f.read())['header']['file_name']
-
-        with open(os.path.join('uploads', original_file_name), 'w+') as f:
+        with open(os.path.join('uploads', fileWithExtension), 'w+') as f:
             f.write(s)
 
 
