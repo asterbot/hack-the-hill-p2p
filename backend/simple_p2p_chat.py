@@ -11,12 +11,31 @@ import os
 DISCOVERY_PORT = 5000
 CHAT_PORT = 5001
 
-existing_files = dict()
 MAX_UDP_PACKET = 65507
 
 
 def hash(input):
     return hashlib.sha256(input.encode("utf-8")).hexdigest()
+
+
+def find_file(directory, filename):
+    for file in os.listdir(directory):
+        name, ext = os.path.splitext(file)
+        if name == filename:
+            return file
+    return None
+
+
+def get_filename_by_file_id(file_id):
+    for fingerprint_file_name in os.listdir("sources"):
+        with open(os.path.join("sources", fingerprint_file_name), "r") as f:
+            file_fingerprint_content = f.read()
+
+            if (file_id == hash(file_fingerprint_content)):
+                file_name = find_file("uploads", Path(fingerprint_file_name))
+                if (file_name is not None):
+                    return [file_name, fingerprint_file_name]
+    return None
 
 
 class P2PClient:
@@ -30,8 +49,6 @@ class P2PClient:
         self.discovery_socket.bind(('', DISCOVERY_PORT))
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
-
-        self.index_files()
 
         self.chat_socket.setsockopt(
             socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
@@ -82,10 +99,15 @@ class P2PClient:
     def response_file_fingerprint(self, message):
         file_id = message["file_id"]
 
-        # if (file_id in existing_files):
         try:
             caller_ip = self.peers[message["user_id"]]
-            file_name = existing_files[file_id][0]
+            files = get_filename_by_file_id(file_id)
+
+            if (files is None):
+                print("No such file: " + file_id)
+                return
+
+            file_name = files[0]
             with open(os.path.join('sources', Path(file_name).stem + ".hackthehill"), "r") as f:
                 response = json.dumps({
                     'file_name': file_name,
@@ -102,7 +124,12 @@ class P2PClient:
     def response_block(self, message):
         file_id = message["file_id"]
         block_index = message["block_index"]
-        target_file_name = existing_files[file_id][0]
+        files = get_filename_by_file_id(file_id)
+        if (files is None):
+            print("File not found: " + file_id)
+            return
+
+        target_file_name = files[0]
 
         block_data = tokenizer.get_block_content(
             os.path.join("uploads", target_file_name), block_index)
@@ -124,9 +151,6 @@ class P2PClient:
         with open(os.path.join('sources',  Path(message['file_name']).stem + '.hackthehill'), 'w') as f:
             f.write(message['content'])
 
-        existing_files[message['file_id']] = [
-            message['file_name'], Path(message['file_name']).stem + '.hackthehill']
-
     def save_block(self, message):
         tmp_file_path = os.path.join('uploads', Path(
             message['file_name']).stem + '.tmp')
@@ -144,7 +168,7 @@ class P2PClient:
                 f.write(json.dumps(d))
 
     def get_all_blocks(self, message):
-        print(message)
+        # print(message)
         file_id = message['file_id']
         with open(os.path.join('sources', Path(message['file_name']).stem + '.hackthehill'), 'r') as f:
             d = json.loads(f.read())
@@ -175,18 +199,6 @@ class P2PClient:
             else:
                 print("User id " + user_id + " is not in the peers")
 
-    def index_files(self):
-        for fingerprint_file_name in os.listdir("sources"):
-            with open(os.path.join("sources", fingerprint_file_name), "r") as f:
-                file_fingerprint_content = f.read()
-                file_fingerprint_data = json.loads(file_fingerprint_content)
-
-                file_fingerprint_hash = hash(file_fingerprint_content)
-                target_file_name = file_fingerprint_data["header"]["file_name"]
-
-                existing_files[file_fingerprint_hash] = [
-                    target_file_name, fingerprint_file_name]
-
     def tmp_to_file(self, tmp_file_path):
         with open(tmp_file_path, 'r') as f:
             content = json.loads(f.read())
@@ -197,10 +209,10 @@ class P2PClient:
         with open(filePath, 'r') as f:
             fileWithExtension = json.loads(f.read())['header']['file_name']
 
-        print("CONTENT:", content)
+        # print("CONTENT:", content)
         s = ""
         for value in content.values():
-            print("value:", value)
+            # print("value:", value)
             s += value
 
         with open(os.path.join('uploads', fileWithExtension), 'w+') as f:
