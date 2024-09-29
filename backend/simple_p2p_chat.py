@@ -99,7 +99,7 @@ class P2PClient:
         except:
             # file doesn't exist error, doesn't need to show
             pass
-            
+
     def response_block(self, message):
         file_id = message["file_id"]
         block_index = message["block_index"]
@@ -203,6 +203,8 @@ class P2PClient:
 
         with open(os.path.join('uploads', fileWithExtension), 'w+') as f:
             f.write(s)
+
+        os.remove(tmp_file_path)
 
 
 def idk():
