@@ -83,18 +83,18 @@ class P2PClient:
         file_id = message["file_id"]
 
         caller_ip = self.peers[message["user_id"]]
-        if (file_id in existing_files):
-            file_fingerprint_name = existing_files[file_id][1]
-            with open(os.path.join('sources', file_fingerprint_name), "r") as f:
-                response = json.dumps({
-                    'file_name': file_fingerprint_name,
-                    'user_id': self.user_id,
-                    'type': 'response_file_fingerprint',
-                    'content': f.read(),
-                    'file_id': file_id
-                })
-                self.chat_socket.sendto(
-                    response.encode(), (caller_ip, CHAT_PORT))
+        # if (file_id in existing_files):
+        file_fingerprint_name = existing_files[file_id][1]
+        with open(os.path.join('sources', file_fingerprint_name), "r") as f:
+            response = json.dumps({
+                'file_name': file_fingerprint_name,
+                'user_id': self.user_id,
+                'type': 'response_file_fingerprint',
+                'content': f.read(),
+                'file_id': file_id
+            })
+            self.chat_socket.sendto(
+                response.encode(), (caller_ip, CHAT_PORT))
 
     def response_block(self, message):
         file_id = message["file_id"]

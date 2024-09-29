@@ -21,7 +21,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-data = dict()
+fileData = dict()
 
 
 @app.route('/receive-file', methods=['POST'])
@@ -38,16 +38,19 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    file_hash = tokenizer.hash_file_blocks(file_path)
+    tokenizer.hash_file_blocks(file_path)
 
-    data[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
-                       Path(file_path).stem + ".hackthehill"}
-    print(data)
+    with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r') as f:
+        file_hash = hash(f.read())
+
+    fileData[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
+                           Path(file_path).stem + ".hackthehill"}
+    print(fileData)
 
     with open("website_data.json", "w") as f:
-        f.write(json.dumps(data, indent=2))
+        f.write(json.dumps(fileData, indent=2))
 
-    return jsonify({"status": "File uploaded", "file_path": file_path, "data": data}), 200
+    return jsonify({"status": "File uploaded", "file_path": file_path, "data": fileData}), 200
 
 
 @app.route('/receive-token', methods=['POST'])
@@ -66,7 +69,7 @@ def receive_token():
 
     file_path = os.path.join('uploads', existing_files[file_hash][0])
     # file_path='file.txt'
-    
+
     with open(file_path, 'rb') as f:
         file_data = f.read()
 
