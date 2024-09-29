@@ -3,6 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Sidenav from "./sidenav";
 
+import {Card, CardHeader, CardBody, CardFooter, Divider, Link, Image} from "@nextui-org/react";
+
+import website_data from '../../../backend/website_data.json'
+
 export default function Home() {
   interface FileProps {
     path?: string;
@@ -13,7 +17,7 @@ export default function Home() {
     type: string;
     webkitRelativePath: string;
   }
-  const [fileData, setFileData] = useState<Array<object>>([]);
+  const [fileData, setFileData] = useState<Array<object>>(website_data);
 
   // Function to upload files to the API
   const uploadFile = async (file: FileProps) => {
@@ -91,11 +95,26 @@ export default function Home() {
         <section>
           <h2 className="text-xl font-semibold mb-4">Current ID:</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <ul>
-              {Object.entries(fileData).map(([key, value]) => (
-                <li key={key}>{value.path}</li>
-              ))}
-            </ul>
+          {Object.entries(fileData).map(([key, value]) => (
+            <Card
+              className="max-w-[800px] w-full p-4 my-4 border border-gray-200 rounded-lg shadow-md bg-white"
+              key={key}
+            >
+              <CardHeader className="flex items-center gap-3 pb-2">
+                <div className="flex flex-col">
+                  <p className="text-lg font-semibold text-gray-800">
+                    {value.path.slice("upload/".length+1)}
+                  </p>
+                </div>
+              </CardHeader>
+              <Divider />
+              <CardBody className="py-4">
+                <b>Hash-key:</b>
+                <p className="text-sm text-gray-500 font-medium break-words w-full">{key}</p>
+              </CardBody>
+              <Divider />
+            </Card>
+          ))}
           </div>
         </section>
       </main>
