@@ -30,6 +30,10 @@ class P2PClient:
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
 
+        MAX_UDP_PACKET = 65507
+        self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
+        self.chat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
+        
     def start(self):
         threading.Thread(target=self.discover_peers, daemon=True).start()
         threading.Thread(target=self.listen_for_messages, daemon=True).start()
