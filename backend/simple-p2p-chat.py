@@ -18,7 +18,7 @@ def hash(input):
 
 class P2PClient:
     def __init__(self):
-        self.ip = socket.gethostbyname(socket.gethostname())
+        
         self.peers = {}
         self.discovery_socket = socket.socket(
             socket.AF_INET, socket.SOCK_DGRAM)
@@ -27,6 +27,7 @@ class P2PClient:
         self.discovery_socket.bind(('', DISCOVERY_PORT))
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
+        self.ip = self.chat_socket.getsockname()[0]
 
     def start(self):
         threading.Thread(target=self.discover_peers, daemon=True).start()
