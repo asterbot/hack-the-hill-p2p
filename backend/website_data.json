@@ -1,6 +1,6 @@
 {
-  "4a62102d135bbeda93d76dec6040010e3d6fcc4114a561b3b4853b01ff863f58": {
-    "path": "uploads/x86.txt",
-    "hackthehill": "./sources/x86.hackthehill"
+  "94f1800b581600ae56ff34d77108e886578e6b21bfa0caf6b80468d87546bd05": {
+    "path": "uploads/compose.yaml",
+    "hackthehill": "./sources/compose.hackthehill"
   }
 }

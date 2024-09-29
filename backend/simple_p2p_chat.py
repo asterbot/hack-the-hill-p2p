@@ -32,7 +32,8 @@ def get_filename_by_file_id(file_id):
             file_fingerprint_content = f.read()
 
             if (file_id == hash(file_fingerprint_content)):
-                file_name = find_file("uploads", Path(fingerprint_file_name))
+                file_name = find_file(
+                    "uploads", Path(fingerprint_file_name).stem)
                 if (file_name is not None):
                     return [file_name, fingerprint_file_name]
     return None
