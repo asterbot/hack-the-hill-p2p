@@ -73,7 +73,7 @@ def receive_token():
     with open(file_path, 'r') as f:
         fileWithExtension = json.loads(f.read())['header']['file_name']
 
-    with open(os.join('uploads', fileWithExtension), 'rb') as f:
+    with open(os.path.join('uploads', fileWithExtension), 'rb') as f:
         file_data = f.read()
 
     file_blob = io.BytesIO(file_data)
