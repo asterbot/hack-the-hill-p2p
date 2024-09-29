@@ -1,13 +1,11 @@
 "use client";
-import React, { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Input from "@/components/ui/input";
-import { SendIcon, Inbox, InboxIcon,UserIcon,LogOut} from "lucide-react";
-import Sidenav from './sidenav';
-
-
+import { SendIcon, Inbox, InboxIcon, UserIcon, LogOut } from "lucide-react";
+import Sidenav from "./sidenav";
 
 export default function Home() {
   interface FileProps {
@@ -20,9 +18,37 @@ export default function Home() {
     webkitRelativePath: string;
   }
 
+  // Function to upload files to the API
+  const uploadFile = async (file: FileProps) => {
+    const formData = new FormData();
+    formData.append("file", file as Blob); // Append the file to formData
+    
+    try {
+      const response = await fetch("http://127.0.0.1:5000/receive-file", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("File uploaded successfully:", data);
+      } else {
+        console.error("Failed to upload file");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  // Handle file drop
   const onDrop = useCallback((acceptedFiles: FileProps[]) => {
     // Handle file upload here and display the files
     console.log(acceptedFiles);
+
+    // Loop through each file and send to the API
+    acceptedFiles.forEach((file) => {
+      uploadFile(file);
+    });
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -36,7 +62,10 @@ export default function Home() {
       <main className="flex-1 p-6">
         <header className="mb-8">
           <h1 className="text-3xl font-bold">Hello there! 👋</h1>
-          <p className="text-gray-600">Looking to share files? We can help you with that, please select your file below!</p>
+          <p className="text-gray-600">
+            Looking to share files? We can help you with that, please select your
+            file below!
+          </p>
         </header>
 
         <section className="mb-12">
@@ -44,7 +73,7 @@ export default function Home() {
           <div
             {...getRootProps()}
             className={`border-2 border-dashed p-6 rounded-lg cursor-pointer ${
-              isDragActive ? 'border-blue-500' : 'border-gray-300'
+              isDragActive ? "border-blue-500" : "border-gray-300"
             }`}
           >
             <input {...getInputProps()} />

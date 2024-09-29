@@ -22,20 +22,43 @@ export default function Page() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageId, setImageId] = useState<string>("");
   
+  // Function to upload files to the API
+  const uploadID = async () => {    
+    try {
+      const response = await fetch("http://127.0.0.1:5000/receive-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ final_id: imageId }), // Send the image ID in the body
+      });
+
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sample.hackthehill';  // Name of the downloaded file
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        
+      } else {
+        console.error("Failed to upload ID");
+      }
+    } catch (error) {
+      console.error("Error uploading ID:", error);
+    }
+    };
+  
+
   // Function to handle fetching the image by ID
   const handleFetchImage = async () => {
     if (!imageId) return;
-    
-    try {
-      const res = await fetch(`/api/images/${imageId}`); // API endpoint to get image by ID
-      if (!res.ok) throw new Error("Image not found");
-      
-      const imageBlob = await res.blob();
-      const imageObjectURL = URL.createObjectURL(imageBlob);
-      setImageUrl(imageObjectURL);  // Set the image URL for display
-    } catch (error) {
-      console.error("Error fetching image:", error);
-    }
+    console.log("Image ID:", imageId);
+    uploadID();
   };
 
   // Handle downloading the image
@@ -56,6 +79,7 @@ export default function Page() {
     },
     []
   );
+
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
