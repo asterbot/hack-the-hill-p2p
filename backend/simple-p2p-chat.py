@@ -5,6 +5,7 @@ import time
 from os import listdir
 import hashlib
 import tokenizer
+import uuid
 
 DISCOVERY_PORT = 5000
 CHAT_PORT = 5001
@@ -18,7 +19,8 @@ def hash(input):
 
 class P2PClient:
     def __init__(self):
-        
+
+        self.user_id = uuid.uuid1().__str__()
         self.peers = {}
         self.discovery_socket = socket.socket(
             socket.AF_INET, socket.SOCK_DGRAM)
@@ -27,7 +29,6 @@ class P2PClient:
         self.discovery_socket.bind(('', DISCOVERY_PORT))
         self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.chat_socket.bind(('', CHAT_PORT))
-        self.ip = self.chat_socket.getsockname()[0]
 
     def start(self):
         threading.Thread(target=self.discover_peers, daemon=True).start()
@@ -38,14 +39,14 @@ class P2PClient:
         while True:
             data, addr = self.discovery_socket.recvfrom(1024)
             message = json.loads(data.decode())
-            if message['type'] == 'announce' and message['ip'] != self.ip:
-                self.peers[message['ip']] = addr[0]
+            if message['type'] == 'announce' and message['user_id'] != self.user_id:
+                self.peers[message['user_id']] = addr[0]
 
     def announce_presence(self):
         while True:
             message = json.dumps({
                 'type': 'announce',
-                'ip': self.ip
+                'user_id': self.user_id
             })
             self.discovery_socket.sendto(
                 message.encode(), ('192.168.211.255', DISCOVERY_PORT))
@@ -57,7 +58,7 @@ class P2PClient:
 
         for ip in self.peers.values():
             message = json.dumps({
-                'origin_ip': self.ip,
+                'user_id': self.user_id,
                 'type': 'request_file_fingerprint',
                 'file_id': file_id
             })
@@ -72,7 +73,7 @@ class P2PClient:
         # TODO make it so that only one returns it at the time
         for ip in self.peers.values():
             message = json.dumps({
-                'origin_ip': self.ip,
+                'user_id': self.user_id,
                 'type': 'request_block',
                 'file_id': file_id,
                 'block_index': block_index
@@ -82,13 +83,14 @@ class P2PClient:
     # Answering the file fingeprint request
     def response_file_fingerprint(self, message):
         file_id = message["file_id"]
-        caller_ip = message["origin_ip"]
+
+        caller_ip = self.peers[message["user_id"]]
         if (file_id in existing_files):
             file_fingerprint_name = './sources/' + existing_files[file_id]
             with open(file_fingerprint_name, "r") as f:
 
                 message = json.dumps({
-                    'origin_ip': self.ip,
+                    'user_id': self.user_id,
                     'type': 'reponse_file_fingerprint',
                     'content': f.read()
                 })
@@ -104,14 +106,14 @@ class P2PClient:
             "./sources/" + target_file_name, block_index)
 
         message = json.dumps({
-            'origin_ip': self.ip,
+            'user_id': self.user_id,
             'type': 'respond_block',
             'file_id': file_id,
             'block_index': block_index,
             'block_data': block_data
         })
 
-        caller_ip = message["origin_ip"]
+        caller_ip = self.peers[message["user_id"]]
 
         self.chat_socket.sendto(message.encode(), (caller_ip, CHAT_PORT))
 
@@ -145,13 +147,14 @@ if __name__ == "__main__":
     client = P2PClient()
     client.start()
     while True:
-        x = int(input("Enter 1 to request file fingerprint, 2 to request block, 3 to quit: "))
-        if x==1:
+        x = int(
+            input("Enter 1 to request file fingerprint, 2 to request block, 3 to quit: "))
+        if x == 1:
             file_id = input("File id: ")
             client.request_file_fingerprint(file_id)
-        if x==2:
+        if x == 2:
             file_id = input("File id: ")
             block_index = input("Block index: ")
             client.request_block(file_id, block_index)
-        if x==3:
+        if x == 3:
             break
