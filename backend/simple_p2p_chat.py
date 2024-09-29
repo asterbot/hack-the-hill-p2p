@@ -85,8 +85,8 @@ class P2PClient:
         caller_ip = self.peers[message["user_id"]]
         # if (file_id in existing_files):
         try:
-            file_fingerprint_name = existing_files[file_id][0]
-            with open(os.path.join('sources', file_fingerprint_name), "r") as f:
+            file_name = existing_files[file_id][0]
+            with open(os.path.join('sources', Path(file_fingerprint_name).stem + ".hackthehill"), "r") as f:
                 response = json.dumps({
                     'file_name': file_fingerprint_name,
                     'user_id': self.user_id,
