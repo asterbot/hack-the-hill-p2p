@@ -86,7 +86,7 @@ class P2PClient:
 
         caller_ip = self.peers[message["user_id"]]
         if (file_id in existing_files):
-            file_fingerprint_name = './sources/' + existing_files[file_id]
+            file_fingerprint_name = './sources/' + existing_files[file_id][1]
             with open(file_fingerprint_name, "r") as f:
 
                 message = json.dumps({
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     client.start()
     while True:
         x = int(
-            input("Enter 1 to request file fingerprint, 2 to request block, 3 to quit: "))
+            input("Enter 1 to request file fingerprint, 2 to request block, 3 hash the file: "))
         if x == 1:
             file_id = input("File id: ")
             client.request_file_fingerprint(file_id)
@@ -157,4 +157,6 @@ if __name__ == "__main__":
             block_index = input("Block index: ")
             client.request_block(file_id, block_index)
         if x == 3:
-            break
+            with open('sources/file.hackthehill', 'r') as f:
+                print(hash(f.read()))
+            # print(tokenizer.hash_file_blocks('sources/file.hackthehill'))
