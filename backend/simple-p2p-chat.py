@@ -90,8 +90,8 @@ class P2PClient:
 
         caller_ip = self.peers[message["user_id"]]
         if (file_id in existing_files):
-            file_fingerprint_name = './sources/' + existing_files[file_id][1]
-            with open(file_fingerprint_name, "r") as f:
+            file_fingerprint_name = existing_files[file_id][1]
+            with open('./sources/' + file_fingerprint_name, "r") as f:
 
                 message = json.dumps({
                     'file_name': file_fingerprint_name,
