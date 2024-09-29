@@ -74,9 +74,12 @@ def receive_token():
         file_data = f.read()
 
     file_blob = io.BytesIO(file_data)
+    
+    with open(file_path, 'r') as f:
+        fileWithExtension = json.loads(f.read())['header']['file_name']
 
     if file_hash:
-        return send_file(file_blob, as_attachment=True, download_name='example.txt', mimetype='text/plain'), 200
+        return send_file(file_blob, as_attachment=True, download_name=fileWithExtension, mimetype='text/plain'), 200
     else:
         return jsonify({"error": "No ID provided"}), 400
 

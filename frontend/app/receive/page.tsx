@@ -39,7 +39,7 @@ export default function Page() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'sample.hackthehill';  // Name of the downloaded file
+        a.download = response.download_name;  // Name of the downloaded file
         document.body.appendChild(a);
         a.click();
         a.remove();
