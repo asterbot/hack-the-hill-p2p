@@ -70,13 +70,14 @@ def receive_token():
     file_path = os.path.join('sources', existing_files[file_hash][1])
     # file_path='file.txt'
 
-    with open(file_path, 'rb') as f:
+    with open(file_path, 'r') as f:
+        fileWithExtension = json.loads(f.read())['header']['file_name']
+
+    with open(os.join('uploads', fileWithExtension), 'rb') as f:
         file_data = f.read()
 
     file_blob = io.BytesIO(file_data)
     
-    with open(file_path, 'r') as f:
-        fileWithExtension = json.loads(f.read())['header']['file_name']
 
     if file_hash:
         return send_file(file_blob, as_attachment=True, download_name=fileWithExtension, mimetype='text/plain'), 200

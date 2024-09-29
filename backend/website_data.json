@@ -1,6 +1,6 @@
 {
-  "3a7eba36fa8f0a02ab9a81e267b9c23791bf20e2d0be317255e4a7ef96ceab7b": {
-    "path": "uploads\\LICENSE",
-    "hackthehill": "./sources/LICENSE.hackthehill"
+  "4c24cb3ba8c77af3f3f7a9387e811756aed35388c900d44ed88b7017e988ccc1": {
+    "path": "uploads\\requirements.txt",
+    "hackthehill": "./sources/requirements.hackthehill"
   }
 }
