@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import io
+import tokenizer
 
 app = Flask(__name__)
 CORS(app)
@@ -15,11 +16,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+
 @app.route('/receive-file', methods=['POST'])
 def receive_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
-    
+
     file = request.files['file']
 
     if file.filename == '':
@@ -29,26 +31,28 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
+    file_hash = tokenizer.hash_file_blocks(file_path)
+    print(file_hash)
+
     return jsonify({"status": "File uploaded", "file_path": file_path}), 200
+
 
 @app.route('/receive-token', methods=['POST'])
 def receive_token():
-    data = request.get_json()   
+    data = request.get_json()
     file_hash = data.get('final_id')
-    
+
     # TODO
     # process file_hash here
     # and store result in file_path
-    
-    file_path = "sample.hackthehill" # NOTE: placeholder for file path
-    
-    
+
+    file_path = "sample.hackthehill"  # NOTE: placeholder for file path
+
     with open(file_path, 'rb') as f:
         file_data = f.read()
-    
+
     file_blob = io.BytesIO(file_data)
-    
-    
+
     if file_hash:
         return send_file(file_blob, as_attachment=True, download_name='example.txt', mimetype='text/plain'), 200
     else:
