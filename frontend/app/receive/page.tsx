@@ -155,7 +155,7 @@ export default function Page() {
                 {verificationStatus}
               </div>
             ) : (
-              <p className="text-gray-500 flex items-center">
+              <p className="text-gray-500 flex items-center text-3xl">
                 Waiting for verification status
                 <span className="dot-1">.</span>
                 <span className="dot-2">.</span>

@@ -7,7 +7,7 @@ const LogIn = () => {
         <div className="flex justify-center bg-custom-pattern bg-cover bg-center min-h-screen">
             <section>
                 <form className=" bg-white border border-gray-300 p-6 rounded-lg shadow-md w-full max-w-xs mt-40 mr-10">
-                    <h2 className="text-2xl font-bold mb-6 text-center">TEAM NAME HERE</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-center">FlipShare</h2>
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
                             Username
