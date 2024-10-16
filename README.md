@@ -1,8 +1,6 @@
 <center><h1> Peer-to-Peer network </h1></center>
 <center><h2> By: <i>The IKEA boys</i></h2></center>
 
-
-
 <p align="center">
     <a href="#inspiration">Inspiration</a> •
     <a href="#what-it-does">What It Does</a> •
@@ -52,7 +50,7 @@ hash of first 512 bytes
 hash of next 512 bytes
 hash of next 512 bytes
 ...
-hash of first remaining data
+hash of remaining data
 `")
 end
 
