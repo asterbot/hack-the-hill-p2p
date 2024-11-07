@@ -1,8 +1,14 @@
 #!/bin/bash
 
+if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
+    command=python3
+else
+    command=python
+fi
+
 while :
 do
-	python main.py
+	${command} main.py
     if [ $? -ne 0 ]; then
         continue
     fi
