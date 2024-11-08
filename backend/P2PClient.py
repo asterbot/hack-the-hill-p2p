@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 from utils import get_filename_by_file_id
-from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, IP
+from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS
 
 
 class P2PClient:
@@ -48,7 +48,7 @@ class P2PClient:
                 'user_id': self.user_id,
             })
             self.discovery_socket.sendto(
-                response.encode(), (IP, DISCOVERY_PORT))
+                response.encode(), (DISCOVERY_ADDRESS, DISCOVERY_PORT))
             time.sleep(2)
 
     def request_file_fingerprint(self, file_id):
