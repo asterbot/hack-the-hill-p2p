@@ -27,7 +27,7 @@ fi
 
 while :
 do
-	${command} main.py
+	${command} code/main.py
     if [ $? -ne 0 ]; then
         continue
     fi
