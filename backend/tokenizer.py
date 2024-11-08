@@ -2,6 +2,7 @@ import hashlib
 import sys
 import os
 import json
+
 from pathlib import Path
 
 
@@ -36,7 +37,7 @@ def hash_file_blocks(file_path, block_size=512):
             index += 1
 
     header["blocks"] = block_hashes
-    
+
     hash_block = json.dumps(header, indent=2)
 
     with open("./sources/" + Path(file_path).stem + ".hackthehill", 'w') as f:

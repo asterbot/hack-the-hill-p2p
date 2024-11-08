@@ -1,13 +1,14 @@
 import os
-from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
 import io
-import tokenizer
-from pathlib import Path
 import json
 
-from simple_p2p_chat import *
+from pathlib import Path
+from flask_cors import CORS
+from flask import Flask, request, jsonify, send_file
 
+from utils import get_filename_by_file_id
+from P2PClient import P2PClient
+from tokenizer import hash_file_blocks
 
 app = Flask(__name__)
 CORS(app)
@@ -38,7 +39,7 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    tokenizer.hash_file_blocks(file_path)
+    hash_file_blocks(file_path)
 
     with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r') as f:
         file_hash = hash(f.read())
