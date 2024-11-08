@@ -44,24 +44,3 @@ def get_filename_by_file_id(file_id):
                 if file_name is not None:
                     return [file_name, fingerprint_file_name]
     return None
-
-
-def idk():
-    """
-    TODO
-    """
-
-    client = 'ok'
-    while True:
-        x = int(input(
-            "Enter 1 to request file fingerprint, 2 to request block, 3 hash the file: "))
-        if x == 1:
-            file_id = input("File id: ")
-            client.request_file_fingerprint(file_id)
-        if x == 2:
-            file_id = input("File id: ")
-            block_index = input("Block index: ")
-            client.request_block(file_id, block_index)
-        if x == 3:
-            with open(os.path.join('sources', 'file.hackthehill'), 'r', encoding="utf-8") as f:
-                print(custom_hash(f.read()))

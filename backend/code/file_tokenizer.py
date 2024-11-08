@@ -19,15 +19,15 @@ class SenderTokenizer:
 
     def hash_file_blocks(self, block_size=512):
         """
-        Takes the original file, creates a .hackthehill file containing a header and a dictionary 
-        of keys with hashes. The header contains information regarding the original file and the 
-        hashed contents. Information in the header is as follows: name of the file, size of the 
-        file, number of hashed blocks present inside the .hackthehill file, size of each block 
-        (information that they contain) in bytes. 
+        Takes the original file, creates a .hackthehill file containing a header and a dictionary
+        of keys with hashes. The header contains information regarding the original file and the
+        hashed contents. Information in the header is as follows: name of the file, size of the
+        file, number of hashed blocks present inside the .hackthehill file, size of each block
+        (information that they contain) in bytes.
 
-        :param block_size: Integer. The default competition block size was 512 bytes, change this 
+        :param block_size: Integer. The default competition block size was 512 bytes, change this
         to change how large one block can be.
-        :return: A hash of the .hackthehill file created, this hashed name of the .hackthehill file 
+        :return: A hash of the .hackthehill file created, this hashed name of the .hackthehill file
         be used to hide the nature of the file in communication
         """
 
@@ -65,7 +65,7 @@ class SenderTokenizer:
         return hashlib.sha256(json.dumps(header).encode('utf-8')).hexdigest()
 
 
-class RecieverTokenizer:
+class ReceiverTokenizer:
     """
     TODO
     """
@@ -75,13 +75,12 @@ class RecieverTokenizer:
 
     def get_block_content(self, block_index: int, block_size: int = 512) -> bytes:
         """
-        Should take in the hashed file content from .hackthehill file and return back the normal 
+        Should take in the hashed file content from .hackthehill file and return back the normal
         file byte content
 
-        :param file_path: String. String of the file path provided in .hackthehill file.
-        :param block_index: Integer. The dictionary index of the block with respect to other 
-        blocks in the sequence, from the .hackthehill file 
-        :param block_size: Integer. The default competition block size was 512 bytes, change this 
+        :param block_index: Integer. The dictionary index of the block with respect to other
+        blocks in the sequence, from the .hackthehill file
+        :param block_size: Integer. The default competition block size was 512 bytes, change this
         to change how large one block can be.
         :return: bytes. Particular portion of the original file content.
         """
