@@ -1,0 +1,15 @@
+#!bin/bash
+
+projectDir=$(git rev-parse --show-toplevel)
+frontendDir="$projectDir/frontend"
+backendDir="$projectDir/backend"
+currentDir=$(pwd)
+
+cd "$frontendDir" 
+npm i
+
+cd "$backendDir" 
+source venv/bin/activate
+pip install -r requirements.txt
+
+cd "$currentDir"
