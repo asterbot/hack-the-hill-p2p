@@ -1,14 +1,26 @@
+"""
+TODO
+"""
+
 import os
 import hashlib
 
 from pathlib import Path
 
 
-def hash(input):
-    return hashlib.sha256(input.encode("utf-8")).hexdigest()
+def custom_hash(encode_input):
+    """
+    TODO
+    """
+
+    return hashlib.sha256(encode_input.encode("utf-8")).hexdigest()
 
 
 def find_file(directory, filename):
+    """
+    TODO
+    """
+
     for file in os.listdir(directory):
         name, ext = os.path.splitext(file)
         if name == filename:
@@ -17,19 +29,27 @@ def find_file(directory, filename):
 
 
 def get_filename_by_file_id(file_id):
+    """
+    TODO
+    """
+
     for fingerprint_file_name in os.listdir("sources"):
-        with open(os.path.join("sources", fingerprint_file_name), "r") as f:
+        with open(os.path.join("sources", fingerprint_file_name), "r", encoding="utf-8") as f:
             file_fingerprint_content = f.read()
 
-            if (file_id == hash(file_fingerprint_content)):
+            if file_id == custom_hash(file_fingerprint_content):
                 file_name = find_file(
                     "uploads", Path(fingerprint_file_name).stem)
-                if (file_name is not None):
+                if file_name is not None:
                     return [file_name, fingerprint_file_name]
     return None
 
 
 def idk():
+    """
+    TODO
+    """
+
     client = 'ok'
     while True:
         x = int(input(
@@ -42,5 +62,5 @@ def idk():
             block_index = input("Block index: ")
             client.request_block(file_id, block_index)
         if x == 3:
-            with open(os.path.join('sources', 'file.hackthehill'), 'r') as f:
-                print(hash(f.read()))
+            with open(os.path.join('sources', 'file.hackthehill'), 'r', encoding="utf-8") as f:
+                print(custom_hash(f.read()))

@@ -10,7 +10,7 @@ from pathlib import Path
 from flask_cors import CORS
 from flask import Flask, request, jsonify, send_file
 
-from utils import get_filename_by_file_id
+from utils import get_filename_by_file_id, custom_hash
 from p2p_client import P2PClient
 from file_tokenizer import SenderTokenizer
 
@@ -26,9 +26,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-fileData = dict()
+fileData = {}
 
-``
+
 @app.route('/receive-file', methods=['POST'])
 def receive_file():
     """
@@ -50,7 +50,7 @@ def receive_file():
     SenderTokenizer.hash_file_blocks(file_path)
 
     with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r', encoding="utf-8") as f:
-        file_hash = hash(f.read())
+        file_hash = custom_hash(f.read())
 
     fileData[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
                            Path(file_path).stem + ".hackthehill"}
