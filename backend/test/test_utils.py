@@ -3,6 +3,7 @@ TODO
 """
 
 import unittest
+from code.utils import find_file
 
 
 class TestUtils(unittest.TestCase):
@@ -10,9 +11,16 @@ class TestUtils(unittest.TestCase):
     TODO
     """
 
-    def test_dummy(self):
+    def test_find_file_with_garbage_file_name_returns_None(self):
         """
-            TODO
-            """
+        If a file does not exist, find_file should return None
+        """
 
-        self.assertEqual(1 + 1, 2)
+        self.assertEqual(find_file("uploads", "random_file.txt"), None)
+
+    def test_find_file_with_garbage_directory_name_returns_None(self):
+        """
+        If a directory does not exist, find_file should return None
+        """
+
+        self.assertEqual(find_file("random_directory", "uploads.txt"), None)

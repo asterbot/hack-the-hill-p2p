@@ -2,3 +2,5 @@ venv
 sources
 uploads
 __pycache__
+.coverage
+.idea
