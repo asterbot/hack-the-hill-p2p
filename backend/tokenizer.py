@@ -7,6 +7,17 @@ from pathlib import Path
 
 
 def hash_file_blocks(file_path, block_size=512):
+    """
+    Takes the original file, creates a .hackthehill file containing a header and a dictionary of keys with hashes. The header
+    contains information regarding the original file and the hashed contents. Information in the header is as follows: name of the file,
+    size of the file, number of hashed blocks present inside the .hackthehill file, size of each block (information that they contain) in
+    bytes. 
+
+    :param file_path: str. Path to the original file
+    :param block_size: Integer. The default competition block size was 512 bytes, change this to change how large one block can be.
+    :return: A hash of the .hackthehill file created, this hashed name of the .hackthehill file be used to hide the nature of the file in communication
+    """
+
     file_size = os.path.getsize(file_path)
     num_blocks = (file_size + block_size -
                   1) // block_size  # Round up division
@@ -22,19 +33,13 @@ def hash_file_blocks(file_path, block_size=512):
         "blocks": dict()
     }
 
-    # Print header
-    # print("Header:")
-    # print("\nBlock Hashes:")
-
     block_hashes = dict()
-    index = 0
 
     with open(file_path, 'rb') as file:
-        for block_num in range(num_blocks):
+        for index in range(num_blocks):
             block = file.read(block_size)
             block_hash = hashlib.sha256(block).hexdigest()
             block_hashes[index] = block_hash
-            index += 1
 
     header["blocks"] = block_hashes
 
@@ -46,8 +51,16 @@ def hash_file_blocks(file_path, block_size=512):
     return hashlib.sha256(json.dumps(header).encode('utf-8')).hexdigest()
 
 
-def get_block_content(file_path, block_index, block_size=512):
-    block_index = int(block_index)
+def get_block_content(file_path: str, block_index: int, block_size: int = 512) -> bytes:
+    """
+    Should take in the hashed file content from .hackthehill file and return back the normal file byte content
+
+    :param file_path: String. String of the file path provided in .hackthehill file.
+    :param block_index: Integer. The dictionary index of the block with respect to other blocks in the sequence, from the .hackthehill file 
+    :param block_size: Integer. The default competition block size was 512 bytes, change this to change how large one block can be.
+    :return: bytes. Particular portion of the original file content.
+    """
+
     file_size = os.path.getsize(file_path)
     num_blocks = (file_size + block_size - 1) // block_size
 
