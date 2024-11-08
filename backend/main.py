@@ -47,7 +47,8 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    SenderTokenizer.hash_file_blocks(file_path)
+    tokized_file = SenderTokenizer(file_path)
+    tokized_file.hash_file_blocks()
 
     with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r', encoding="utf-8") as f:
         file_hash = custom_hash(f.read())

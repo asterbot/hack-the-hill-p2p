@@ -143,8 +143,9 @@ class P2PClient:
 
         target_file_name = files[0]
 
-        block_data = RecieverTokenizer.get_block_content(
-            os.path.join("uploads", target_file_name), block_index)
+        detokenized_file = RecieverTokenizer(os.path.join(
+            "uploads", target_file_name))
+        block_data = detokenized_file.get_block_content(block_index)
 
         response = json.dumps({
             'file_name': target_file_name,
