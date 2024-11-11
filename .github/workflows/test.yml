@@ -25,7 +25,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        cd backend && pip install -r requirements.txt
+        cd backend
+        pip install -r requirements.txt
     - name: Test
       run: |
-        cd backend && python -m unittest discover .
+        cd backend
+        python -m unittest discover .
+    - name: View Coverage
+      run: |
+        cd backend
+        coverage run --source=code -m unittest discover -s . 
+        coverage report -m
