@@ -11,8 +11,8 @@ import os
 
 from pathlib import Path
 
-from utils import get_filename_by_file_id
-from file_tokenizer import ReceiverTokenizer
+from code.utils import get_filename_by_file_id
+from code.file_tokenizer import ReceiverTokenizer
 from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS
 
 
@@ -23,7 +23,7 @@ class P2PClient:
 
     def __init__(self):
         self.user_id = uuid.uuid1().__str__()
-        self.peers = dict()
+        self.peers = {}
         self.discovery_socket = socket.socket(
             socket.AF_INET, socket.SOCK_DGRAM)
         self.discovery_socket.setsockopt(

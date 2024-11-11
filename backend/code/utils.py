@@ -23,7 +23,7 @@ def find_file(directory, filename):
 
     if os.path.exists(directory):
         for file in os.listdir(directory):
-            name, ext = os.path.splitext(file)
+            name, _ = os.path.splitext(file)
             if name == filename:
                 return file
     return None
