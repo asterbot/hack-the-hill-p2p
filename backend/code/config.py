@@ -2,7 +2,10 @@
 TODO
 """
 
+import os.path
+
 DISCOVERY_PORT = 5000
 CHAT_PORT = 5001
 MAX_UDP_PACKET = 65507
 DISCOVERY_ADDRESS = '192.168.181.255'
+UPLOAD_FOLDER = os.path.abspath("../uploads")

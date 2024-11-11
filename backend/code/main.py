@@ -6,6 +6,7 @@ import os
 import io
 import json
 
+from code.config import UPLOAD_FOLDER
 from code.utils import get_filename_by_file_id, custom_hash
 from code.p2p_client import P2PClient
 from code.file_tokenizer import SenderTokenizer
@@ -17,11 +18,6 @@ from flask import Flask, request, jsonify, send_file
 
 app = Flask(__name__)
 CORS(app)
-
-# Define the folder to save uploaded files
-# TODO: Modify UPLOAD_FOLDER to the path you wanna save the received file in locally
-UPLOAD_FOLDER = 'uploads'                       # NOTE: This is a placeholder
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Ensure the upload directory exists
 if not os.path.exists(UPLOAD_FOLDER):
@@ -73,8 +69,6 @@ def receive_token():
     data = request.get_json()
     file_hash = data.get('final_id')
 
-    # TODO process file_hash here and store result in file_path
-
     client.request_file_fingerprint(file_hash)
 
     files = get_filename_by_file_id(file_hash)
@@ -84,7 +78,6 @@ def receive_token():
         return jsonify({"error": "Can't find file hash"}), 400
 
     file_path = os.path.join('sources', files[1])
-    # file_path='file.txt'
 
     with open(file_path, 'r', encoding="utf-8") as f:
         file_with_extension = json.loads(f.read())['header']['file_name']
