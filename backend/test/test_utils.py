@@ -89,7 +89,7 @@ class TestUtils(unittest.TestCase):
             f.write(message)
             hashed_file.hash_file_blocks()
 
-            with open(hackthehill_file, "r", encoding="utf-8") as f:
+            with open(hackthehill_file, "r", encoding="utf-8") as g:
                 hackthehill_file_content = f.read()
                 file_id = custom_hash(hackthehill_file_content)
 
