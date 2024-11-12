@@ -8,6 +8,8 @@ import json
 
 from pathlib import Path
 
+from config import SOURCES_FOLDER
+
 
 class SenderTokenizer:
     """
@@ -31,6 +33,7 @@ class SenderTokenizer:
         be used to hide the nature of the file in communication
         """
 
+        hackthehill_file = Path(self.file_path).stem + ".hackthehill"
         file_size: int = os.path.getsize(self.file_path)
         num_blocks = (file_size + block_size -
                       1) // block_size  # Round up division
@@ -58,8 +61,7 @@ class SenderTokenizer:
 
         hash_block = json.dumps(header, indent=2)
 
-        with open("./sources/" + Path(self.file_path).stem + ".hackthehill",
-                  'w', encoding="utf-8") as f:
+        with open(os.path.join(SOURCES_FOLDER, hackthehill_file), 'w', encoding="utf-8") as f:
             f.write(hash_block)
 
         return hashlib.sha256(json.dumps(header).encode('utf-8')).hexdigest()

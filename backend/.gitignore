@@ -1,6 +1,11 @@
 venv
-sources
-uploads
+
+sources/
+!sources/sample.hackthehill
+
+uploads/
+!uploads/sample.txt
+
 __pycache__
 .coverage
 .idea

@@ -1,0 +1,9 @@
+{
+  "header": {
+    "file_name": "test.txt",
+    "file_size": 0,
+    "number_of_blocks": 0,
+    "block_size": 512
+  },
+  "blocks": {}
+}

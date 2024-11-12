@@ -13,7 +13,7 @@ from pathlib import Path
 
 from code.utils import get_filename_by_file_id
 from code.file_tokenizer import ReceiverTokenizer
-from code.config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS
+from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS
 
 
 class P2PClient:

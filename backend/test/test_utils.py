@@ -2,22 +2,27 @@
 Testing the Utilities class
 """
 import hashlib
+import os.path
+import pathlib
 import unittest
-from code.utils import find_file, custom_hash
+
+from code.file_tokenizer import SenderTokenizer
+from config import SOURCES_FOLDER, CODE_FOLDER, UPLOADS_FOLDER
+from code.utils import find_file, custom_hash, get_filename_by_file_id
 
 
 class TestUtils(unittest.TestCase):
     """
     Utilities class functions are generic and widely used. Their implementation is very important.
     """
-    
+
     def test_custom_hash(self):
         """
         We have our own implementation for hashing utf-8 format encoding
         """
-        
+
         encoded_input = "Hi Mom"
-        
+
         self.assertEqual(custom_hash(encoded_input), hashlib.sha256(encoded_input.encode("utf-8")).hexdigest())
 
     def test_find_file_with_garbage_file_name_returns_none(self):
@@ -33,13 +38,54 @@ class TestUtils(unittest.TestCase):
         """
 
         self.assertEqual(find_file("random_directory", "uploads.txt"), None)
-    
+
     def test_find_file_with_proper_director_and_file_returns_filename(self):
         """
         If a file and directory exists, and file exists inside the directory, return the 
         filename
         """
-        
-        self.assertEqual(find_file("code", "utils"), "utils.py")
-        
-     
+
+        self.assertEqual(find_file(CODE_FOLDER, "utils.py"), "utils.py")
+
+    def test_get_filename_by_file_id_with_no_matching_id_returns_none(self):
+        """
+        If none of the hashed ids match with the file id, we should return None
+        """
+
+        testing_file = os.path.join(UPLOADS_FOLDER, "test_get_filename_by_file_id_with_no_matching_id_returns_none.txt")
+        message = "test_get_filename_by_file_id_with_no_matching_id_returns_none"
+
+        with open(testing_file, "x", encoding="utf-8") as f:
+            f.write(message)
+            file_id = "random-file-id"
+
+            self.assertEqual(get_filename_by_file_id(file_id), None)
+
+        os.remove(testing_file)
+
+    def test_get_filename_by_file_id_with_matching_id_returns_tuple(self):
+        """
+        If the hashed id is the same as the hash of .hackthehill file, we should return the tuple of filenames
+        """
+
+        testing_file = os.path.join(UPLOADS_FOLDER,
+                                    "test_get_filename_by_file_id_with_matching_id_returns_tuple.txt")
+        hackthehill_file = os.path.join(SOURCES_FOLDER,
+                                        "test_get_filename_by_file_id_with_matching_id_returns_tuple.hackthehill")
+
+        hashed_file = SenderTokenizer(testing_file)
+        message = "test_get_filename_by_file_id_with_matching_id_returns_tuple"
+
+        with open(testing_file, "x", encoding="utf-8") as f:
+            f.write(message)
+            hashed_file.hash_file_blocks()
+
+            with open(hackthehill_file, "r", encoding="utf-8") as f:
+                hackthehill_file_content = f.read()
+                file_id = custom_hash(hackthehill_file_content)
+
+            self.assertEqual(get_filename_by_file_id(file_id), (os.path.basename(testing_file),
+                                                                os.path.basename(hackthehill_file)))
+
+        os.remove(testing_file)
+        os.remove(hackthehill_file)
