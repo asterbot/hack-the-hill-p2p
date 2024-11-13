@@ -8,6 +8,7 @@ import json
 
 from pathlib import Path
 
+from code.utils import custom_hash
 from config import SOURCES_FOLDER, HASH_EXTENSION
 
 
@@ -57,7 +58,7 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
     with open(os.path.join(SOURCES_FOLDER, hackthehill_file), 'w', encoding="utf-8") as f:
         f.write(hash_block)
 
-    return hashlib.sha256(json.dumps(header).encode('utf-8')).hexdigest()
+    return custom_hash(json.dumps(header))
 
 
 def get_block_content(file_path, block_index: int, block_size: int = 512) -> bytes:
