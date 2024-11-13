@@ -223,7 +223,7 @@ class P2PClient:
                 elif message["type"] == "response_block":
                     self.save_block(message)
                     self.tmp_to_file(os.path.join(
-                        'uploads', Path(message['file_name']).stem + '.tmp'))
+                        UPLOADS_FOLDER, Path(message['file_name']).stem + '.tmp'))
                 else:
                     print("Invalid message type: " + message["type"])
             else:
@@ -244,7 +244,7 @@ class P2PClient:
         # print("CONTENT:", content)
         s = content.values().join()
 
-        with open(os.path.join('uploads', file_with_extension), 'w+', encoding="utf-8") as f:
+        with open(os.path.join(UPLOADS_FOLDER, file_with_extension), 'w+', encoding="utf-8") as f:
             f.write(s)
 
         os.remove(tmp_file_path)

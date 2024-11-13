@@ -76,12 +76,12 @@ def receive_token():
         print("Could not find the fucking file with file id " + file_hash)
         return jsonify({"error": "Can't find file hash"}), 400
 
-    file_path = os.path.join('sources', files[1])
+    file_path = os.path.join(SOURCES_FOLDER, files[1])
 
     with open(file_path, 'r', encoding="utf-8") as f:
         file_with_extension = json.loads(f.read())['header']['file_name']
 
-    with open(os.path.join('uploads', file_with_extension), 'rb') as f:
+    with open(os.path.join(UPLOADS_FOLDER, file_with_extension), 'rb') as f:
         file_data = f.read()
 
     file_blob = io.BytesIO(file_data)
