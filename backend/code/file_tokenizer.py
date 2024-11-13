@@ -1,5 +1,5 @@
 """
-TODO
+This file helps in creating and interpreting a .hackthehill file
 """
 
 import hashlib
@@ -8,7 +8,7 @@ import json
 
 from pathlib import Path
 
-from config import SOURCES_FOLDER
+from config import SOURCES_FOLDER, HASH_EXTENSION
 
 
 def hash_file_blocks(file_path: str, block_size: int = 512):
@@ -26,7 +26,7 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
     be used to hide the nature of the file in communication
     """
 
-    hackthehill_file = Path(file_path).stem + ".hackthehill"
+    hackthehill_file = Path(file_path).stem + HASH_EXTENSION
     file_size: int = os.path.getsize(file_path)
     num_blocks = (file_size + block_size -
                   1) // block_size  # Round up division

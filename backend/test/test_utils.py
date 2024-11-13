@@ -8,7 +8,7 @@ import unittest
 from code.file_tokenizer import hash_file_blocks
 from code.utils import find_file, custom_hash, get_filename_by_file_id
 
-from config import SOURCES_FOLDER, CODE_FOLDER, UPLOADS_FOLDER
+from config import SOURCES_FOLDER, CODE_FOLDER, UPLOADS_FOLDER, HASH_EXTENSION
 
 
 class TestUtils(unittest.TestCase):
@@ -80,7 +80,7 @@ class TestUtils(unittest.TestCase):
             "test_get_filename_by_file_id_with_matching_id_returns_tuple.txt")
         hackthehill_file = os.path.join(
             SOURCES_FOLDER,
-            "test_get_filename_by_file_id_with_matching_id_returns_tuple.hackthehill")
+            "test_get_filename_by_file_id_with_matching_id_returns_tuple" + HASH_EXTENSION)
 
         message = "test_get_filename_by_file_id_with_matching_id_returns_tuple"
 

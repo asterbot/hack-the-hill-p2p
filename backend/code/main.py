@@ -14,7 +14,7 @@ from pathlib import Path
 from flask_cors import CORS
 from flask import Flask, request, jsonify, send_file
 
-from config import UPLOADS_FOLDER
+from config import UPLOADS_FOLDER, HASH_EXTENSION, SOURCES_FOLDER, WEBSITE_DATA
 
 app = Flask(__name__)
 CORS(app)
@@ -46,14 +46,14 @@ def receive_file():
 
     hash_file_blocks(file_path)
 
-    with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r', encoding="utf-8") as f:
+    hackthehill_file = os.path.join(SOURCES_FOLDER, Path(file_path).stem + HASH_EXTENSION)
+
+    with open(hackthehill_file, 'r', encoding="utf-8") as f:
         file_hash = custom_hash(f.read())
 
-    fileData[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
-                           Path(file_path).stem + ".hackthehill"}
-    # print(fileData)
+    fileData[file_hash] = {'path': file_path, 'hackthehill': hackthehill_file}
 
-    with open("website_data.json", "w", encoding="utf-8") as f:
+    with open(WEBSITE_DATA, "w", encoding="utf-8") as f:
         f.write(json.dumps(fileData, indent=2))
 
     return jsonify({"status": "File uploaded", "file_path": file_path, "data": fileData}), 200
