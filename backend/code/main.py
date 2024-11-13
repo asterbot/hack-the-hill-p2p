@@ -6,7 +6,6 @@ import os
 import io
 import json
 
-from code.config import UPLOAD_FOLDER
 from code.utils import get_filename_by_file_id, custom_hash
 from code.p2p_client import P2PClient
 from code.file_tokenizer import SenderTokenizer
@@ -15,13 +14,14 @@ from pathlib import Path
 from flask_cors import CORS
 from flask import Flask, request, jsonify, send_file
 
+from config import UPLOADS_FOLDER
 
 app = Flask(__name__)
 CORS(app)
 
 # Ensure the upload directory exists
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(UPLOADS_FOLDER):
+    os.makedirs(UPLOADS_FOLDER)
 
 fileData = {}
 
