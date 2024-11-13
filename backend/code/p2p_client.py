@@ -12,8 +12,8 @@ import os
 from pathlib import Path
 
 from code.utils import get_filename_by_file_id
-from code.file_tokenizer import ReceiverTokenizer
-from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS
+from code.file_tokenizer import get_block_content
+from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS, UPLOADS_FOLDER
 
 
 class P2PClient:
@@ -143,9 +143,7 @@ class P2PClient:
 
         target_file_name = files[0]
 
-        retokenized_file = ReceiverTokenizer(os.path.join(
-            "uploads", target_file_name))
-        block_data = retokenized_file.get_block_content(block_index)
+        block_data = get_block_content(os.path.join(UPLOADS_FOLDER, target_file_name), block_index)
 
         response = json.dumps({
             'file_name': target_file_name,

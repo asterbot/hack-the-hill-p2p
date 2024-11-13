@@ -8,7 +8,7 @@ import json
 
 from code.utils import get_filename_by_file_id, custom_hash
 from code.p2p_client import P2PClient
-from code.file_tokenizer import SenderTokenizer
+from code.file_tokenizer import hash_file_blocks
 
 from pathlib import Path
 from flask_cors import CORS
@@ -44,8 +44,7 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    tokenized_file = SenderTokenizer(file_path)
-    tokenized_file.hash_file_blocks()
+    hash_file_blocks(file_path)
 
     with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r', encoding="utf-8") as f:
         file_hash = custom_hash(f.read())

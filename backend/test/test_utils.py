@@ -5,7 +5,7 @@ import hashlib
 import os.path
 import unittest
 
-from code.file_tokenizer import SenderTokenizer
+from code.file_tokenizer import hash_file_blocks
 from code.utils import find_file, custom_hash, get_filename_by_file_id
 
 from config import SOURCES_FOLDER, CODE_FOLDER, UPLOADS_FOLDER
@@ -44,7 +44,7 @@ class TestUtils(unittest.TestCase):
 
     def test_find_file_with_proper_director_and_file_returns_filename(self):
         """
-        If a file and directory exists, and file exists inside the directory, return the 
+        If a file and directory exists, and file exists inside the directory, return the
         filename
         """
 
@@ -71,7 +71,7 @@ class TestUtils(unittest.TestCase):
 
     def test_get_filename_by_file_id_with_matching_id_returns_tuple(self):
         """
-        If the hashed id is the same as the hash of .hackthehill file, we should return the 
+        If the hashed id is the same as the hash of .hackthehill file, we should return the
         tuple of filenames
         """
 
@@ -82,12 +82,11 @@ class TestUtils(unittest.TestCase):
             SOURCES_FOLDER,
             "test_get_filename_by_file_id_with_matching_id_returns_tuple.hackthehill")
 
-        hashed_file = SenderTokenizer(testing_file)
         message = "test_get_filename_by_file_id_with_matching_id_returns_tuple"
 
         with open(testing_file, "x", encoding="utf-8") as f:
             f.write(message)
-            hashed_file.hash_file_blocks()
+            hash_file_blocks(testing_file)
 
             with open(hackthehill_file, "r", encoding="utf-8") as g:
                 hackthehill_file_content = g.read()
