@@ -2,7 +2,6 @@
 This file helps in creating and interpreting a .hackthehill file
 """
 
-import hashlib
 import os
 import json
 
@@ -45,10 +44,10 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
 
     block_hashes = {}
 
-    with open(file_path, 'rb') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         for index in range(num_blocks):
             block = file.read(block_size)
-            block_hash = hashlib.sha256(block).hexdigest()
+            block_hash = custom_hash(block)
             block_hashes[index] = block_hash
 
     header["blocks"] = block_hashes

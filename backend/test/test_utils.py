@@ -56,13 +56,11 @@ class TestUtils(unittest.TestCase):
         If none of the hashed ids match with the file id, we should return None
         """
 
-        testing_file = os.path.join(
-            UPLOADS_FOLDER,
-            "test_get_filename_by_file_id_with_no_matching_id_returns_none.txt")
-        message = "test_get_filename_by_file_id_with_no_matching_id_returns_none"
+        function_name = "test_get_filename_by_file_id_with_no_matching_id_returns_none"
+        testing_file = os.path.join(UPLOADS_FOLDER, f"{function_name}.txt")
 
         with open(testing_file, "x", encoding="utf-8") as f:
-            f.write(message)
+            f.write(function_name)
             file_id = "random-file-id"
 
             self.assertEqual(get_filename_by_file_id(file_id), None)
@@ -75,17 +73,12 @@ class TestUtils(unittest.TestCase):
         tuple of filenames
         """
 
-        testing_file = os.path.join(
-            UPLOADS_FOLDER,
-            "test_get_filename_by_file_id_with_matching_id_returns_tuple.txt")
-        hackthehill_file = os.path.join(
-            SOURCES_FOLDER,
-            "test_get_filename_by_file_id_with_matching_id_returns_tuple" + HASH_EXTENSION)
-
-        message = "test_get_filename_by_file_id_with_matching_id_returns_tuple"
+        function_name = "test_get_filename_by_file_id_with_matching_id_returns_tuple"
+        testing_file = os.path.join(UPLOADS_FOLDER, f"{function_name}.txt")
+        hackthehill_file = os.path.join(SOURCES_FOLDER, function_name + HASH_EXTENSION)
 
         with open(testing_file, "x", encoding="utf-8") as f:
-            f.write(message)
+            f.write(function_name)
             hash_file_blocks(testing_file)
 
             with open(hackthehill_file, "r", encoding="utf-8") as g:
