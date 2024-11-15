@@ -13,7 +13,7 @@ from typing import Optional
 from config import SOURCES_FOLDER, UPLOADS_FOLDER
 
 
-def custom_encoding(normal_input: any) -> bytes:
+def custom_encoding(normal_input: any) -> str:
     """
     Using utf-8 encoding. This is our custom encoding function we use in the entire project, 
     we should not use the inbuilt functions.

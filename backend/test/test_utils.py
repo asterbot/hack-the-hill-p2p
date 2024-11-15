@@ -1,7 +1,7 @@
 """
 Testing the Utilities class
 """
-import hashlib
+
 import os.path
 import unittest
 
@@ -9,6 +9,7 @@ from code.file_tokenizer import hash_file_blocks
 from code.utils import find_file, custom_encoding, get_filename_by_file_id, custom_decoding
 
 from config import SOURCES_FOLDER, CODE_FOLDER, UPLOADS_FOLDER, HASH_EXTENSION
+from test.common import write_to_testing_file_and_create_hackthehill, remove_files
 
 
 class TestUtils(unittest.TestCase):
@@ -74,7 +75,7 @@ class TestUtils(unittest.TestCase):
 
             self.assertEqual(get_filename_by_file_id(file_id), None)
 
-        os.remove(testing_file)
+        remove_files(function_name)
 
     def test_get_filename_by_file_id_with_matching_id_returns_tuple(self):
         """
@@ -86,17 +87,14 @@ class TestUtils(unittest.TestCase):
         testing_file = os.path.join(UPLOADS_FOLDER, f"{function_name}.txt")
         hackthehill_file = os.path.join(SOURCES_FOLDER, function_name + HASH_EXTENSION)
 
-        with open(testing_file, "x", encoding="utf-8") as f:
-            f.write(function_name)
-            hash_file_blocks(testing_file)
+        write_to_testing_file_and_create_hackthehill(function_name, testing_file)
 
-            with open(hackthehill_file, "r", encoding="utf-8") as g:
-                hackthehill_file_content = g.read()
-                file_id = custom_encoding(hackthehill_file_content)
+        with open(hackthehill_file, "r", encoding="utf-8") as g:
+            hackthehill_file_content = g.read()
+            file_id = custom_encoding(hackthehill_file_content)
 
-            self.assertEqual(get_filename_by_file_id(file_id),
-                             (os.path.basename(testing_file),
-                              os.path.basename(hackthehill_file)))
+        self.assertEqual(get_filename_by_file_id(file_id),
+                         (os.path.basename(testing_file),
+                          os.path.basename(hackthehill_file)))
 
-        os.remove(testing_file)
-        os.remove(hackthehill_file)
+        remove_files(function_name)

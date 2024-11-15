@@ -8,6 +8,7 @@ import unittest
 from code.file_tokenizer import hash_file_blocks, get_block_content
 from code.utils import custom_encoding
 from config import UPLOADS_FOLDER, SOURCES_FOLDER, HASH_EXTENSION
+from test.common import write_to_testing_file_and_create_hackthehill, remove_files
 
 
 class TestFileTokenizer(unittest.TestCase):
@@ -45,8 +46,7 @@ class TestFileTokenizer(unittest.TestCase):
                 self.assertEqual(hackthehill_file_hashed_content,
                                  custom_encoding(json.dumps(hackthehill_file_content)))
 
-        os.remove(testing_file)
-        os.remove(hackthehill_file)
+        remove_files(function_name)
 
     def test_hash_file_blocks_with_non_empty_file_returns_correct_value(self):
         """
@@ -91,8 +91,7 @@ class TestFileTokenizer(unittest.TestCase):
                 self.assertEqual(hackthehill_file_hashed_content,
                                  custom_encoding(json.dumps(hackthehill_file_content)))
 
-        os.remove(testing_file)
-        os.remove(hackthehill_file)
+        remove_files(function_name)
 
     def test_get_block_content_block_out_index_throws_error(self):
         """
@@ -103,16 +102,12 @@ class TestFileTokenizer(unittest.TestCase):
         testing_file = os.path.join(UPLOADS_FOLDER, f"{function_name}.txt")
         hackthehill_file = os.path.join(SOURCES_FOLDER, function_name + HASH_EXTENSION)
 
-        with open(testing_file, "x", encoding="utf-8") as f:
-            f.write(function_name)
-
-        hash_file_blocks(testing_file)
+        write_to_testing_file_and_create_hackthehill(function_name, testing_file)
 
         self.assertRaises(ValueError, get_block_content, hackthehill_file, -1)
         self.assertRaises(ValueError, get_block_content, hackthehill_file, 1)
 
-        os.remove(testing_file)
-        os.remove(hackthehill_file)
+        remove_files(function_name)
 
     def test_get_block_content_returns_correct_value(self):
         """
@@ -135,5 +130,4 @@ class TestFileTokenizer(unittest.TestCase):
 
         self.assertEqual(get_block_content(hackthehill_file, 0), encoded_text)
 
-        os.remove(testing_file)
-        os.remove(hackthehill_file)
+        remove_files(function_name)
