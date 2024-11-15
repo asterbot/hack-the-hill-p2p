@@ -7,7 +7,7 @@ import json
 
 from pathlib import Path
 
-from code.utils import custom_encoding
+from code.utils import custom_encoding, custom_decoding
 from config import SOURCES_FOLDER, HASH_EXTENSION
 
 
@@ -23,12 +23,12 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
     :param block_size: Integer. The default competition block size was 512 bytes, change this
     to change how large one block can be.
     :return: A hash of the .hackthehill file created, this hashed name of the .hackthehill file
-    be used to hide the nature of the file in communication
+    be used to hide the nature of the file in communication.
     """
 
     hackthehill_file = Path(file_path).stem + HASH_EXTENSION
     file_size: int = os.path.getsize(file_path)
-    num_blocks = (file_size + block_size - 1) // block_size 
+    num_blocks = (file_size + block_size - 1) // block_size
 
     # Create header
     header = {
@@ -59,28 +59,26 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
     return custom_encoding(json.dumps(header))
 
 
-def get_block_content(file_path, block_index: int, block_size: int = 512) -> bytes:
+def get_block_content(hackthehill_file: str, block_index: int) -> str:
     """
     Should take in the hashed file content from .hackthehill file and return back the normal
     file byte content
 
-    :param file_path: str. The path to the .hackthehill file.
+    :param hackthehill_file: str. The path to the .hackthehill file.
     :param block_index: Integer. The dictionary index of the block with respect to other
-    blocks in the sequence, from the .hackthehill file
-    :param block_size: Integer. The default competition block size was 512 bytes, change this
-    to change how large one block can be.
+    blocks in the sequence, from the .hackthehill file.
     :return: bytes. Particular portion of the original file content.
     """
 
-    file_size = os.path.getsize(file_path)
-    num_blocks = (file_size + block_size - 1) // block_size
+    with open(hackthehill_file, "r", encoding="utf-8") as f:
+        file_content = json.loads(f.read())
+        num_blocks = file_content["header"]["number_of_blocks"]
 
-    if block_index < 0 or block_index >= num_blocks:
-        raise ValueError(
-            f"Block index out of range. Valid range: 0 to {num_blocks - 1}")
+        if block_index < 0 or block_index >= num_blocks:
+            raise ValueError(
+                f"Block index out of range. Valid range: 0 to {num_blocks - 1}")
 
-    with open(file_path, 'rb') as file:
-        file.seek(block_index * block_size)
-        block_content = file.read(block_size)
+        encoded_content = file_content["blocks"][str(block_index)]
+        block_content = custom_decoding(encoded_content)
 
     return block_content

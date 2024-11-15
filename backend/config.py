@@ -6,17 +6,17 @@ Since the file contains actual directory names, it must be at the root of backen
 
 import os.path
 
-DISCOVERY_PORT = 5000
-CHAT_PORT = 5001
-MAX_UDP_PACKET = 65507
-DISCOVERY_ADDRESS = '192.168.181.255'
-HASH_EXTENSION = '.hackthehill'
+DISCOVERY_PORT: int = 5000
+CHAT_PORT: int = 5001
+MAX_UDP_PACKET: int = 65507
+DISCOVERY_ADDRESS: str = "192.168.181.255"
+HASH_EXTENSION: str = ".hackthehill"
 
-BACKEND_FOLDER = os.path.dirname(os.path.abspath(__file__))
+BACKEND_FOLDER: str = os.path.dirname(os.path.abspath(__file__))
 
-UPLOADS_FOLDER = os.path.join(BACKEND_FOLDER, "uploads")
-SOURCES_FOLDER = os.path.join(BACKEND_FOLDER, "sources")
-CODE_FOLDER = os.path.join(BACKEND_FOLDER, "code")
-TEST_FOLDER = os.path.join(BACKEND_FOLDER, "test")
+UPLOADS_FOLDER: str = os.path.join(BACKEND_FOLDER, "uploads")
+SOURCES_FOLDER: str = os.path.join(BACKEND_FOLDER, "sources")
+CODE_FOLDER: str = os.path.join(BACKEND_FOLDER, "code")
+TEST_FOLDER: str = os.path.join(BACKEND_FOLDER, "test")
 
-WEBSITE_DATA = os.path.join(CODE_FOLDER, "website_data.json")
+WEBSITE_DATA: str = os.path.join(CODE_FOLDER, "website_data.json")

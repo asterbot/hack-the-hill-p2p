@@ -5,7 +5,7 @@ import json
 import os.path
 import unittest
 
-from code.file_tokenizer import hash_file_blocks
+from code.file_tokenizer import hash_file_blocks, get_block_content
 from code.utils import custom_encoding
 from config import UPLOADS_FOLDER, SOURCES_FOLDER, HASH_EXTENSION
 
@@ -90,6 +90,50 @@ class TestFileTokenizer(unittest.TestCase):
                 self.assertEqual(hackthehill_file_content, test_header)
                 self.assertEqual(hackthehill_file_hashed_content,
                                  custom_encoding(json.dumps(hackthehill_file_content)))
+
+        os.remove(testing_file)
+        os.remove(hackthehill_file)
+
+    def test_get_block_content_block_out_index_throws_error(self):
+        """
+        For block index out of range, we should raise ValueError
+        """
+
+        function_name = "test_get_block_content_block_out_index_throws_error"
+        testing_file = os.path.join(UPLOADS_FOLDER, f"{function_name}.txt")
+        hackthehill_file = os.path.join(SOURCES_FOLDER, function_name + HASH_EXTENSION)
+
+        with open(testing_file, "x", encoding="utf-8") as f:
+            f.write(function_name)
+
+        hash_file_blocks(testing_file)
+
+        self.assertRaises(ValueError, get_block_content, hackthehill_file, -1)
+        self.assertRaises(ValueError, get_block_content, hackthehill_file, 1)
+
+        os.remove(testing_file)
+        os.remove(hackthehill_file)
+
+    def test_get_block_content_returns_correct_value(self):
+        """
+        Remember that the indexing starts at 0. Given the encoding function, we should see the 
+        correct decoding being applied, such that we don't need to original file to decode the 
+        .hackthehill's content. Now, the data transmission totally depends on the encoding and 
+        decoding.
+        """
+
+        function_name = "test_get_block_content_returns_correct_value"
+        testing_file = os.path.join(UPLOADS_FOLDER, f"{function_name}.txt")
+        hackthehill_file = os.path.join(SOURCES_FOLDER, function_name + HASH_EXTENSION)
+
+        with open(testing_file, "x", encoding="utf-8") as f:
+            f.write(function_name)
+
+        hash_file_blocks(testing_file)
+
+        encoded_text = custom_encoding(function_name)
+
+        self.assertEqual(get_block_content(hackthehill_file, 0), encoded_text)
 
         os.remove(testing_file)
         os.remove(hackthehill_file)
