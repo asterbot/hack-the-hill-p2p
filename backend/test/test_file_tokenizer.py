@@ -6,7 +6,7 @@ import os.path
 import unittest
 
 from code.file_tokenizer import hash_file_blocks
-from code.utils import custom_hash
+from code.utils import custom_encoding
 from config import UPLOADS_FOLDER, SOURCES_FOLDER, HASH_EXTENSION
 
 
@@ -43,7 +43,7 @@ class TestFileTokenizer(unittest.TestCase):
 
                 self.assertEqual(hackthehill_file_content, test_header)
                 self.assertEqual(hackthehill_file_hashed_content,
-                                 custom_hash(json.dumps(hackthehill_file_content)))
+                                 custom_encoding(json.dumps(hackthehill_file_content)))
 
         os.remove(testing_file)
         os.remove(hackthehill_file)
@@ -80,7 +80,7 @@ class TestFileTokenizer(unittest.TestCase):
 
             for index in range(num_blocks):
                 block = f.read(block_size)
-                block_hash = custom_hash(block)
+                block_hash = custom_encoding(block)
                 test_header["blocks"][str(index)] = str(block_hash)
                 test_header["header"]["number_of_blocks"] += 1
 
@@ -89,7 +89,7 @@ class TestFileTokenizer(unittest.TestCase):
 
                 self.assertEqual(hackthehill_file_content, test_header)
                 self.assertEqual(hackthehill_file_hashed_content,
-                                 custom_hash(json.dumps(hackthehill_file_content)))
+                                 custom_encoding(json.dumps(hackthehill_file_content)))
 
         os.remove(testing_file)
         os.remove(hackthehill_file)

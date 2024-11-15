@@ -6,7 +6,7 @@ import os.path
 import unittest
 
 from code.file_tokenizer import hash_file_blocks
-from code.utils import find_file, custom_hash, get_filename_by_file_id
+from code.utils import find_file, custom_encoding, get_filename_by_file_id, custom_decoding
 
 from config import SOURCES_FOLDER, CODE_FOLDER, UPLOADS_FOLDER, HASH_EXTENSION
 
@@ -16,15 +16,24 @@ class TestUtils(unittest.TestCase):
     Utilities class functions are generic and widely used. Their implementation is very important.
     """
 
-    def test_custom_hash(self):
+    def test_custom_encoding(self):
         """
-        We have our own implementation for hashing utf-8 format encoding
+        We have our own implementation for utf-8 format encoding
         """
 
-        encoded_input = "Hi Mom"
+        standard_input = "Hi Mom"
 
-        self.assertEqual(custom_hash(encoded_input),
-                         hashlib.sha256(encoded_input.encode("utf-8")).hexdigest())
+        self.assertEqual(custom_encoding(standard_input), standard_input)
+
+    def test_custom_decoding(self):
+        """
+        We have our own implementation for utf-8 format decoding
+        """
+
+        standard_input = "Hi Mom"
+        encoded_input = custom_encoding(standard_input)
+
+        self.assertEqual(custom_decoding(encoded_input), str(encoded_input))
 
     def test_find_file_with_garbage_file_name_returns_none(self):
         """
@@ -83,7 +92,7 @@ class TestUtils(unittest.TestCase):
 
             with open(hackthehill_file, "r", encoding="utf-8") as g:
                 hackthehill_file_content = g.read()
-                file_id = custom_hash(hackthehill_file_content)
+                file_id = custom_encoding(hackthehill_file_content)
 
             self.assertEqual(get_filename_by_file_id(file_id),
                              (os.path.basename(testing_file),

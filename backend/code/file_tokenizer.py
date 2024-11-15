@@ -7,7 +7,7 @@ import json
 
 from pathlib import Path
 
-from code.utils import custom_hash
+from code.utils import custom_encoding
 from config import SOURCES_FOLDER, HASH_EXTENSION
 
 
@@ -28,8 +28,7 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
 
     hackthehill_file = Path(file_path).stem + HASH_EXTENSION
     file_size: int = os.path.getsize(file_path)
-    num_blocks = (file_size + block_size -
-                  1) // block_size  # Round up division
+    num_blocks = (file_size + block_size - 1) // block_size 
 
     # Create header
     header = {
@@ -47,7 +46,7 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
     with open(file_path, "r", encoding="utf-8") as file:
         for index in range(num_blocks):
             block = file.read(block_size)
-            block_hash = custom_hash(block)
+            block_hash = custom_encoding(block)
             block_hashes[index] = block_hash
 
     header["blocks"] = block_hashes
@@ -57,7 +56,7 @@ def hash_file_blocks(file_path: str, block_size: int = 512):
     with open(os.path.join(SOURCES_FOLDER, hackthehill_file), 'w', encoding="utf-8") as f:
         f.write(hash_block)
 
-    return custom_hash(json.dumps(header))
+    return custom_encoding(json.dumps(header))
 
 
 def get_block_content(file_path, block_index: int, block_size: int = 512) -> bytes:

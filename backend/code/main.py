@@ -6,7 +6,7 @@ import os
 import io
 import json
 
-from code.utils import get_filename_by_file_id, custom_hash
+from code.utils import get_filename_by_file_id, custom_encoding
 from code.p2p_client import P2PClient
 from code.file_tokenizer import hash_file_blocks
 
@@ -49,7 +49,7 @@ def receive_file():
     hackthehill_file = os.path.join(SOURCES_FOLDER, Path(file_path).stem + HASH_EXTENSION)
 
     with open(hackthehill_file, 'r', encoding="utf-8") as f:
-        file_hash = custom_hash(f.read())
+        file_hash = custom_encoding(f.read())
 
     fileData[file_hash] = {'path': file_path, 'hackthehill': hackthehill_file}
 
