@@ -10,7 +10,7 @@ from config import UPLOADS_FOLDER, SOURCES_FOLDER, HASH_EXTENSION
 
 def write_to_testing_file_and_create_hackthehill(function_name: str, testing_file: str) -> None:
     """
-    Write the function name to the testing file (which is generated as a side effect) and 
+    Write the function name to the testing file (which is generated as a side effect) and
     generate the hackthehill function (also a side effect).
     """
 

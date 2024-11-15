@@ -5,7 +5,6 @@ Generic functions used throughout the project that don't belong to a particular 
 """
 
 import os
-import hashlib
 
 from pathlib import Path
 from typing import Optional
@@ -15,7 +14,7 @@ from config import SOURCES_FOLDER, UPLOADS_FOLDER
 
 def custom_encoding(normal_input: any) -> str:
     """
-    Using utf-8 encoding. This is our custom encoding function we use in the entire project, 
+    Using utf-8 encoding. This is our custom encoding function we use in the entire project,
     we should not use the inbuilt functions.
 
     TODO Correct Implementation has to be written
@@ -24,7 +23,7 @@ def custom_encoding(normal_input: any) -> str:
     return normal_input
 
 
-def custom_decoding(encoded_string: bytes) -> str:
+def custom_decoding(encoded_string: any) -> str:
     """
     Assuming that the encoding is utf-8. We should not read the file to get back the original value.
 

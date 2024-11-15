@@ -7,8 +7,9 @@ import unittest
 
 from code.file_tokenizer import hash_file_blocks, get_block_content
 from code.utils import custom_encoding
-from config import UPLOADS_FOLDER, SOURCES_FOLDER, HASH_EXTENSION
 from test.common import write_to_testing_file_and_create_hackthehill, remove_files
+
+from config import UPLOADS_FOLDER, SOURCES_FOLDER, HASH_EXTENSION
 
 
 class TestFileTokenizer(unittest.TestCase):
@@ -111,9 +112,9 @@ class TestFileTokenizer(unittest.TestCase):
 
     def test_get_block_content_returns_correct_value(self):
         """
-        Remember that the indexing starts at 0. Given the encoding function, we should see the 
-        correct decoding being applied, such that we don't need to original file to decode the 
-        .hackthehill's content. Now, the data transmission totally depends on the encoding and 
+        Remember that the indexing starts at 0. Given the encoding function, we should see the
+        correct decoding being applied, such that we don't need to original file to decode the
+        .hackthehill's content. Now, the data transmission totally depends on the encoding and
         decoding.
         """
 

@@ -5,11 +5,10 @@ Testing the Utilities class
 import os.path
 import unittest
 
-from code.file_tokenizer import hash_file_blocks
 from code.utils import find_file, custom_encoding, get_filename_by_file_id, custom_decoding
+from test.common import write_to_testing_file_and_create_hackthehill, remove_files
 
 from config import SOURCES_FOLDER, CODE_FOLDER, UPLOADS_FOLDER, HASH_EXTENSION
-from test.common import write_to_testing_file_and_create_hackthehill, remove_files
 
 
 class TestUtils(unittest.TestCase):
@@ -34,7 +33,7 @@ class TestUtils(unittest.TestCase):
         standard_input = "Hi Mom"
         encoded_input = custom_encoding(standard_input)
 
-        self.assertEqual(custom_decoding(encoded_input), str(encoded_input))
+        self.assertEqual(custom_decoding(encoded_input), encoded_input)
 
     def test_find_file_with_garbage_file_name_returns_none(self):
         """

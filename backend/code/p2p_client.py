@@ -152,7 +152,7 @@ class P2PClient:
             'type': 'response_block',
             'file_id': file_id,
             'block_index': block_index,
-            'block_data': str(block_data, 'utf-8')
+            'block_data': block_data
         })
 
         caller_ip = self.peers[message["user_id"]]
