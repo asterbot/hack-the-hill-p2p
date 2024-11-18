@@ -1,5 +1,5 @@
 """
-TODO
+P2P Connection and TCP File Sharing
 """
 
 import socket
@@ -19,7 +19,8 @@ from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS,
 
 class P2PClient:
     """
-    TODO
+    P2P client is the main application that creates P2P connection between two users, and uses TCP
+    for file sharing. Note that this class uses threads and async functions extensively.
     """
 
     def __init__(self):
