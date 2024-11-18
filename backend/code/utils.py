@@ -9,15 +9,19 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from config import SOURCES_FOLDER, UPLOADS_FOLDER
+from code.client_message import ClientMessage
+from config import SOURCES_FOLDER, UPLOADS_FOLDER, HASH_EXTENSION
 
 
 def custom_encoding(normal_input: any) -> str:
     """
+    TODO Correct Implementation has to be written
+
     Using utf-8 encoding. This is our custom encoding function we use in the entire project,
     we should not use the inbuilt functions.
 
-    TODO Correct Implementation has to be written
+    :param normal_input: str, the normal input to be encoded
+    :returns: output after encoding
     """
 
     return normal_input
@@ -25,9 +29,12 @@ def custom_encoding(normal_input: any) -> str:
 
 def custom_decoding(encoded_string: any) -> str:
     """
+    TODO Correct Implementation has to be written
+
     Assuming that the encoding is utf-8. We should not read the file to get back the original value.
 
-    TODO Correct Implementation has to be written
+    :param encoded_string: str, the encoded string to be decoded
+    :returns: output after decoding
     """
 
     return str(encoded_string)
@@ -74,3 +81,18 @@ def get_filename_by_file_id(file_id: str) -> Optional[tuple[str, str]]:
                 if original_file_name is not None:
                     return original_file_name, hackthehill_file
     return None
+
+
+def save_file(friend_message: ClientMessage) -> None:
+    """
+    Someone has sent you the requested file back, and it's in the form on .hackthehill file. Now,
+    it's our responsibility to save the file to disk, after converting it into a normal text format.
+
+    :param friend_message: ClientMessage. Contains the message sent from your friend that has all 
+    the information about the file you requested about.
+    """
+
+    hackthehill_file = os.path.join(SOURCES_FOLDER,
+                                    Path(friend_message.file_name).stem + HASH_EXTENSION)
+    with open(hackthehill_file, 'w', encoding="utf-8") as f:
+        f.write(friend_message.content)

@@ -2,250 +2,160 @@
 P2P Connection and TCP File Sharing
 """
 
+import os
 import socket
 import threading
-import json
 import time
 import uuid
-import os
-
 from pathlib import Path
 
-from code.utils import get_filename_by_file_id
-from code.file_tokenizer import get_block_content
-from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS, UPLOADS_FOLDER, \
-    HASH_EXTENSION, SOURCES_FOLDER
+from code.client_message import ClientMessage, MessageType
+from code.utils import get_filename_by_file_id, save_file
+from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS, HASH_EXTENSION, \
+    SOURCES_FOLDER
 
 
 class P2PClient:
     """
     P2P client is the main application that creates P2P connection between two users, and uses TCP
     for file sharing. Note that this class uses threads and async functions extensively.
+
+    For getting a new file across, we have the following transitions.
+
+    1. Client requests their friends for the .hackthehill file.
+    2. Client's friends respond with the .hackthehill file for that particular file id
+    3. Client receives the .hackthehill file, saves it and uses to get the original file back
     """
 
     def __init__(self):
-        self.user_id = uuid.uuid1().__str__()
-        self.peers = {}
-        self.discovery_socket = socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM)
-        self.discovery_socket.setsockopt(
-            socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.discovery_socket.bind(('', DISCOVERY_PORT))
-        self.chat_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.chat_socket.bind(('', CHAT_PORT))
+        self.__user_id__ = uuid.uuid4().__str__()
+        self.__friends__ = {}
 
-        self.chat_socket.setsockopt(
+        self.__discovery_socket__ = socket.socket(
+            socket.AF_INET, socket.SOCK_DGRAM)
+        self.__discovery_socket__.setsockopt(
+            socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.__discovery_socket__.bind(('', DISCOVERY_PORT))
+
+        self.__chat_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__chat_socket__.bind(('', CHAT_PORT))
+        self.__chat_socket__.setsockopt(
             socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
-        self.chat_socket.setsockopt(
+        self.__chat_socket__.setsockopt(
             socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
 
-    def start(self):
+    def start(self) -> None:
         """
-        TODO
+        Run these processes in the background constantly (daemon) on different threads.
+
+        1. We constantly search for friends
+        2. We constantly keep listening to messages our friends have for us
+        3. We constantly keep telling everyone on our network that we are open to being friends.
         """
 
-        threading.Thread(target=self.discover_peers, daemon=True).start()
-        threading.Thread(target=self.listen_for_messages, daemon=True).start()
-        threading.Thread(target=self.announce_presence, daemon=True).start()
+        threading.Thread(target=self.__discover_friends__, daemon=True).start()
+        threading.Thread(target=self.__listen_for_messages__, daemon=True).start()
+        threading.Thread(target=self.__announce_presence__, daemon=True).start()
 
-    def discover_peers(self):
+    def request_file(self, file_id: str) -> None:
         """
-        TODO
+        Send everyone on your network list a request for a file that has this particular
+        file id. Note that since we get the file id from the sender directly, only they should
+        have a file with the same file id.
+
+        :param file_id: String. File id of the file that you want to request from your friends.
+        """
+
+        client_message = ClientMessage()
+        client_message.type = MessageType.REQUEST_FILE
+        client_message.user_id = self.__user_id__
+        client_message.file_id = file_id
+        response = client_message.to_json()
+
+        for friend in self.__friends__.values():
+            self.__chat_socket__.sendto(response.encode(), (friend, CHAT_PORT))
+
+    def __discover_friends__(self) -> None:
+        """
+        Continuously search for people in your network, and if you find them, add their ip to your
+        dictionary.
         """
 
         while True:
-            data, addr = self.discovery_socket.recvfrom(MAX_UDP_PACKET)
-            message = json.loads(data.decode())
-            if message['type'] == 'announce' and message['user_id'] != self.user_id:
-                self.peers[message['user_id']] = addr[0]
+            data, addr = self.__discovery_socket__.recvfrom(MAX_UDP_PACKET)
+            client_message = ClientMessage()
+            client_message.load(data)
 
-    def announce_presence(self):
+            if client_message.is_announce() and client_message.user_id != self.__user_id__:
+                self.__friends__[client_message.user_id] = addr[0]
+
+    def __announce_presence__(self) -> None:
         """
-        TODO
+        Every 2 seconds we announce our presence to the network of people in our network.
         """
+
+        client_message = ClientMessage()
+        client_message.type = MessageType.ANNOUNCE
+        client_message.user_id = self.__user_id__
+        response = client_message.to_json()
 
         while True:
-            response = json.dumps({
-                'type': 'announce',
-                'user_id': self.user_id,
-            })
-            self.discovery_socket.sendto(
-                response.encode(), (DISCOVERY_ADDRESS, DISCOVERY_PORT))
+            self.__discovery_socket__.sendto(response.encode(), (DISCOVERY_ADDRESS, DISCOVERY_PORT))
             time.sleep(2)
 
-    def request_file_fingerprint(self, file_id):
+    def __response_file__(self, friend_message: ClientMessage) -> None:
         """
-        TODO
-        """
+        Someone has requested for a file id that you shared; and hence, you should send back a
+        response containing the .hackthehill file so that they can create the base file from 
+        scratch.
 
-        for ip in self.peers.values():
-            response = json.dumps({
-                'user_id': self.user_id,
-                'type': 'request_file_fingerprint',
-                'file_id': file_id
-            })
-            self.chat_socket.sendto(response.encode(), (ip, CHAT_PORT))
-
-    def request_block(self, file_id, block_index):
-        """
-        TODO
+        :param friend_message: ClientMessage. Contains your friend's request for a .hackthehill file
         """
 
-        for ip in self.peers.values():
-            message = json.dumps({
-                'user_id': self.user_id,
-                'type': 'request_block',
-                'file_id': file_id,
-                'block_index': block_index,
-            })
-            self.chat_socket.sendto(message.encode(), (ip, CHAT_PORT))
+        client_message = ClientMessage()
+        client_message.type = MessageType.RESPONSE_FILE
+        client_message.user_id = self.__user_id__
+        client_message.file_id = friend_message.file_id
 
-    def response_file_fingerprint(self, message):
-        """
-        TODO
-        """
-
-        file_id = message["file_id"]
-
-        try:
-            caller_ip = self.peers[message["user_id"]]
-            files = get_filename_by_file_id(file_id)
-
-            if files is None:
-                print("No such file: " + file_id)
-                return
-
-            file_name = files[0]
-            hackthehill_file = os.path.join(SOURCES_FOLDER, Path(file_name).stem + HASH_EXTENSION)
-            with open(hackthehill_file, "r", encoding='utf-8') as f:
-                response = json.dumps({
-                    'file_name': file_name,
-                    'user_id': self.user_id,
-                    'type': 'response_file_fingerprint',
-                    'content': f.read(),
-                    'file_id': file_id
-                })
-                self.chat_socket.sendto(
-                    response.encode(), (caller_ip, CHAT_PORT))
-        except Exception as e:
-            print(e)
-
-    def response_block(self, message):
-        """
-        TODO
-        """
-
-        file_id = message["file_id"]
-        block_index = message["block_index"]
-        files = get_filename_by_file_id(file_id)
+        files = get_filename_by_file_id(client_message.file_id)
 
         if files is None:
-            print("File not found: " + file_id)
+            print("No such file: " + client_message.file_id)
             return
 
-        target_file_name = files[0]
+        file_name = files[0]
+        hackthehill_file = os.path.join(SOURCES_FOLDER, Path(file_name).stem + HASH_EXTENSION)
 
-        block_data = get_block_content(os.path.join(UPLOADS_FOLDER, target_file_name), block_index)
+        with open(hackthehill_file, "r", encoding='utf-8') as f:
+            client_message.file_name = file_name
+            client_message.content = f.read()
 
-        response = json.dumps({
-            'file_name': target_file_name,
-            'user_id': self.user_id,
-            'type': 'response_block',
-            'file_id': file_id,
-            'block_index': block_index,
-            'block_data': block_data
-        })
+            response = client_message.to_json()
+            friend_ip = self.__friends__[friend_message.user_id]
+            self.__chat_socket__.sendto(response.encode(), (friend_ip, CHAT_PORT))
 
-        caller_ip = self.peers[message["user_id"]]
-
-        self.chat_socket.sendto(response.encode(), (caller_ip, CHAT_PORT))
-
-    def save_fingerprint_file(self, message):
+    def __listen_for_messages__(self):
         """
-        TODO
-        """
+        Listen for new messages from your friends.
 
-        hackthehill_file = os.path.join(SOURCES_FOLDER,
-                                        Path(message['file_name']).stem + HASH_EXTENSION)
-        with open(hackthehill_file, 'w', encoding="utf-8") as f:
-            f.write(message['content'])
+        If they request for a file, you must respond to your friends.
 
-    def save_block(self, message):
-        """
-        TODO
-        """
-
-        tmp_file_path = os.path.join(UPLOADS_FOLDER, Path(message['file_name']).stem + '.tmp')
-        with open(tmp_file_path, 'w+', encoding="utf-8") as f:
-            file_content = f.read()
-            if len(file_content) > 0:
-                content = json.loads(file_content)
-                if message['block_index'] not in content:
-                    content[message['block_index']] = message['block_data']
-                    f.seek(0)
-                    f.write(json.dumps(content))
-                    f.truncate()
-            else:
-                d = {message['block_index']: message['block_data']}
-                f.write(json.dumps(d))
-
-    def get_all_blocks(self, message):
-        """
-        TODO
-        """
-
-        file_id = message['file_id']
-        hackthehill_file = os.path.join(SOURCES_FOLDER,
-                                        Path(message['file_name']).stem + HASH_EXTENSION)
-        with open(hackthehill_file, 'r', encoding="utf-8") as f:
-            d = json.loads(f.read())
-            for block_index in range(int(d['header']['number_of_blocks'])):
-                self.request_block(file_id, block_index)
-
-    def listen_for_messages(self):
-        """
-        TODO
+        If they respond regarding a file, you must save the data sent.
         """
 
         while True:
-            data, _ = self.chat_socket.recvfrom(MAX_UDP_PACKET)
-            message = json.loads(data.decode())
-            print(message)
+            data, _ = self.__chat_socket__.recvfrom(MAX_UDP_PACKET)
+            friend_message = ClientMessage()
+            friend_message.load(data)
 
-            user_id = message["user_id"]
-            if user_id in self.peers:
-                if message["type"] == "request_file_fingerprint":
-                    self.response_file_fingerprint(message)
-                elif message["type"] == "request_block":
-                    self.response_block(message)
-                elif message["type"] == "response_file_fingerprint":
-                    self.save_fingerprint_file(message)
-                    self.get_all_blocks(message)
-                elif message["type"] == "response_block":
-                    self.save_block(message)
-                    self.tmp_to_file(os.path.join(
-                        UPLOADS_FOLDER, Path(message['file_name']).stem + '.tmp'))
+            print(friend_message)
+
+            if friend_message.user_id in self.__friends__:
+                if friend_message.is_request_file():
+                    self.__response_file__(friend_message)
+                elif friend_message.is_response_file():
+                    save_file(friend_message)
                 else:
-                    print("Invalid message type: " + message["type"])
+                    print("Invalid message type")
             else:
-                print("User id " + user_id + " is not in the peers")
-
-    def tmp_to_file(self, tmp_file_path):
-        """
-        TODO
-        """
-        with open(tmp_file_path, 'r', encoding="utf-8") as f:
-            content = json.loads(f.read())
-
-        file_path = os.path.join(SOURCES_FOLDER, Path(tmp_file_path).stem + HASH_EXTENSION)
-
-        with open(file_path, 'r', encoding="utf-8") as f:
-            file_with_extension = json.loads(f.read())['header']['file_name']
-
-        # print("CONTENT:", content)
-        s = content.values().join()
-
-        with open(os.path.join(UPLOADS_FOLDER, file_with_extension), 'w+', encoding="utf-8") as f:
-            f.write(s)
-
-        os.remove(tmp_file_path)
+                print("User id " + friend_message.user_id + " is not in the peers")
