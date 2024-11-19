@@ -90,7 +90,7 @@ def save_file(friend_message: ClientMessage) -> None:
     
     If file with that name already exists, the content of the file is overwritten.
 
-    :param friend_message: ClientMessage. Contains the message sent from your friend that has all 
+    :param friend_message: ClientMessage. Contains the message sent from your friend that has all
     the information about the file you requested about.
     """
 

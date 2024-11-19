@@ -9,7 +9,7 @@ import time
 import uuid
 from pathlib import Path
 
-from code.client_message import ClientMessage, MessageType
+from code.client_message import ClientMessage, MessageType, MessageError
 from code.utils import get_filename_by_file_id, save_file
 from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS, HASH_EXTENSION, \
     SOURCES_FOLDER
@@ -82,7 +82,8 @@ class P2PClient:
             client_message = ClientMessage()
             client_message.load(data)
 
-            if client_message.is_announce() and client_message.user_id != self.__user_id__:
+            if (client_message.is_type(MessageType.ANNOUNCE) and
+                    client_message.user_id != self.__user_id__):
                 self.__friends__[client_message.user_id] = addr[0]
 
     def __announce_presence__(self) -> None:
@@ -102,7 +103,7 @@ class P2PClient:
     def __response_file__(self, friend_message: ClientMessage) -> None:
         """
         Someone has requested for a file id that you shared; and hence, you should send back a
-        response containing the .hackthehill file so that they can create the base file from 
+        response containing the .hackthehill file so that they can create the base file from
         scratch.
 
         :param friend_message: ClientMessage. Contains your friend's request for a .hackthehill file
@@ -117,6 +118,7 @@ class P2PClient:
 
         if files is None:
             print("No such file: " + client_message.file_id)
+            client_message.error = MessageError.FILE_NOT_FOUND
             return
 
         file_name = files[0]
@@ -147,9 +149,9 @@ class P2PClient:
             print(friend_message)
 
             if friend_message.user_id in self.__friends__:
-                if friend_message.is_request_file():
+                if friend_message.is_type(MessageType.REQUEST_FILE):
                     self.__response_file__(friend_message)
-                elif friend_message.is_response_file():
+                elif friend_message.is_type(MessageType.RESPONSE_FILE):
                     save_file(friend_message)
                 else:
                     print("Invalid message type")
