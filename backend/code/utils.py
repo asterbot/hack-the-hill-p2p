@@ -5,7 +5,6 @@ Generic functions used throughout the project that don't belong to a particular 
 """
 
 import os
-from contextlib import nullcontext
 
 from pathlib import Path
 from typing import Optional
@@ -94,7 +93,7 @@ def save_file(friend_message: ClientMessage) -> None:
     :param friend_message: ClientMessage. Contains the message sent from your friend that has all 
     the information about the file you requested about.
     """
-    
+
     assert friend_message.file_name
     assert friend_message.content
 
