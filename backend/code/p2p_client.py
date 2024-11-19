@@ -28,21 +28,17 @@ class P2PClient:
     """
 
     def __init__(self):
-        self.__user_id__ = uuid.uuid4().__str__()
-        self.__friends__ = {}
+        self.__user_id__: str = uuid.uuid4().__str__()
+        self.__friends__: dict[str, any] = {}
 
-        self.__discovery_socket__ = socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM)
-        self.__discovery_socket__.setsockopt(
-            socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.__discovery_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__discovery_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.__discovery_socket__.bind(('', DISCOVERY_PORT))
 
         self.__chat_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__chat_socket__.bind(('', CHAT_PORT))
-        self.__chat_socket__.setsockopt(
-            socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
-        self.__chat_socket__.setsockopt(
-            socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
+        self.__chat_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
+        self.__chat_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
 
     def start(self) -> None:
         """

@@ -5,6 +5,7 @@ Generic functions used throughout the project that don't belong to a particular 
 """
 
 import os
+from contextlib import nullcontext
 
 from pathlib import Path
 from typing import Optional
@@ -87,10 +88,15 @@ def save_file(friend_message: ClientMessage) -> None:
     """
     Someone has sent you the requested file back, and it's in the form on .hackthehill file. Now,
     it's our responsibility to save the file to disk, after converting it into a normal text format.
+    
+    If file with that name already exists, the content of the file is overwritten.
 
     :param friend_message: ClientMessage. Contains the message sent from your friend that has all 
     the information about the file you requested about.
     """
+    
+    assert friend_message.file_name
+    assert friend_message.content
 
     hackthehill_file = os.path.join(SOURCES_FOLDER,
                                     Path(friend_message.file_name).stem + HASH_EXTENSION)
