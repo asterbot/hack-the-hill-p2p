@@ -6,15 +6,15 @@ import os
 import io
 import json
 
-from code.utils import get_filename_by_file_id, custom_hash
+from code.utils import get_filename_by_file_id, custom_encoding
 from code.p2p_client import P2PClient
-from code.file_tokenizer import SenderTokenizer
+from code.file_tokenizer import hash_file_blocks
 
 from pathlib import Path
 from flask_cors import CORS
 from flask import Flask, request, jsonify, send_file
 
-from config import UPLOADS_FOLDER
+from config import UPLOADS_FOLDER, HASH_EXTENSION, SOURCES_FOLDER, WEBSITE_DATA
 
 app = Flask(__name__)
 CORS(app)
@@ -44,17 +44,16 @@ def receive_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    tokenized_file = SenderTokenizer(file_path)
-    tokenized_file.hash_file_blocks()
+    hash_file_blocks(file_path)
 
-    with open("./sources/" + Path(file_path).stem + ".hackthehill", 'r', encoding="utf-8") as f:
-        file_hash = custom_hash(f.read())
+    hackthehill_file = os.path.join(SOURCES_FOLDER, Path(file_path).stem + HASH_EXTENSION)
 
-    fileData[file_hash] = {'path': file_path, 'hackthehill': "./sources/" +
-                           Path(file_path).stem + ".hackthehill"}
-    # print(fileData)
+    with open(hackthehill_file, 'r', encoding="utf-8") as f:
+        file_hash = custom_encoding(f.read())
 
-    with open("website_data.json", "w", encoding="utf-8") as f:
+    fileData[file_hash] = {'path': file_path, 'hackthehill': hackthehill_file}
+
+    with open(WEBSITE_DATA, "w", encoding="utf-8") as f:
         f.write(json.dumps(fileData, indent=2))
 
     return jsonify({"status": "File uploaded", "file_path": file_path, "data": fileData}), 200
@@ -77,12 +76,12 @@ def receive_token():
         print("Could not find the fucking file with file id " + file_hash)
         return jsonify({"error": "Can't find file hash"}), 400
 
-    file_path = os.path.join('sources', files[1])
+    file_path = os.path.join(SOURCES_FOLDER, files[1])
 
     with open(file_path, 'r', encoding="utf-8") as f:
         file_with_extension = json.loads(f.read())['header']['file_name']
 
-    with open(os.path.join('uploads', file_with_extension), 'rb') as f:
+    with open(os.path.join(UPLOADS_FOLDER, file_with_extension), 'rb') as f:
         file_data = f.read()
 
     file_blob = io.BytesIO(file_data)

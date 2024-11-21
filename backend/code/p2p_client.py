@@ -12,8 +12,9 @@ import os
 from pathlib import Path
 
 from code.utils import get_filename_by_file_id
-from code.file_tokenizer import ReceiverTokenizer
-from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS
+from code.file_tokenizer import get_block_content
+from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS, UPLOADS_FOLDER, \
+    HASH_EXTENSION, SOURCES_FOLDER
 
 
 class P2PClient:
@@ -114,8 +115,8 @@ class P2PClient:
                 return
 
             file_name = files[0]
-            with open(os.path.join('sources', Path(file_name).stem + ".hackthehill"),
-                      "r", encoding='utf-8') as f:
+            hackthehill_file = os.path.join(SOURCES_FOLDER, Path(file_name).stem + HASH_EXTENSION)
+            with open(hackthehill_file, "r", encoding='utf-8') as f:
                 response = json.dumps({
                     'file_name': file_name,
                     'user_id': self.user_id,
@@ -143,9 +144,7 @@ class P2PClient:
 
         target_file_name = files[0]
 
-        retokenized_file = ReceiverTokenizer(os.path.join(
-            "uploads", target_file_name))
-        block_data = retokenized_file.get_block_content(block_index)
+        block_data = get_block_content(os.path.join(UPLOADS_FOLDER, target_file_name), block_index)
 
         response = json.dumps({
             'file_name': target_file_name,
@@ -153,7 +152,7 @@ class P2PClient:
             'type': 'response_block',
             'file_id': file_id,
             'block_index': block_index,
-            'block_data': str(block_data, 'utf-8')
+            'block_data': block_data
         })
 
         caller_ip = self.peers[message["user_id"]]
@@ -165,8 +164,9 @@ class P2PClient:
         TODO
         """
 
-        with open(os.path.join('sources',  Path(message['file_name']).stem + '.hackthehill'),
-                  'w', encoding="utf-8") as f:
+        hackthehill_file = os.path.join(SOURCES_FOLDER,
+                                        Path(message['file_name']).stem + HASH_EXTENSION)
+        with open(hackthehill_file, 'w', encoding="utf-8") as f:
             f.write(message['content'])
 
     def save_block(self, message):
@@ -174,8 +174,7 @@ class P2PClient:
         TODO
         """
 
-        tmp_file_path = os.path.join('uploads', Path(
-            message['file_name']).stem + '.tmp')
+        tmp_file_path = os.path.join(UPLOADS_FOLDER, Path(message['file_name']).stem + '.tmp')
         with open(tmp_file_path, 'w+', encoding="utf-8") as f:
             file_content = f.read()
             if len(file_content) > 0:
@@ -195,8 +194,9 @@ class P2PClient:
         """
 
         file_id = message['file_id']
-        with open(os.path.join('sources', Path(message['file_name']).stem + '.hackthehill'),
-                  'r', encoding="utf-8") as f:
+        hackthehill_file = os.path.join(SOURCES_FOLDER,
+                                        Path(message['file_name']).stem + HASH_EXTENSION)
+        with open(hackthehill_file, 'r', encoding="utf-8") as f:
             d = json.loads(f.read())
             for block_index in range(int(d['header']['number_of_blocks'])):
                 self.request_block(file_id, block_index)
@@ -223,7 +223,7 @@ class P2PClient:
                 elif message["type"] == "response_block":
                     self.save_block(message)
                     self.tmp_to_file(os.path.join(
-                        'uploads', Path(message['file_name']).stem+'.tmp'))
+                        UPLOADS_FOLDER, Path(message['file_name']).stem + '.tmp'))
                 else:
                     print("Invalid message type: " + message["type"])
             else:
@@ -236,8 +236,7 @@ class P2PClient:
         with open(tmp_file_path, 'r', encoding="utf-8") as f:
             content = json.loads(f.read())
 
-        file_path = os.path.join('sources', Path(
-            tmp_file_path).stem + '.hackthehill')
+        file_path = os.path.join(SOURCES_FOLDER, Path(tmp_file_path).stem + HASH_EXTENSION)
 
         with open(file_path, 'r', encoding="utf-8") as f:
             file_with_extension = json.loads(f.read())['header']['file_name']
@@ -245,7 +244,7 @@ class P2PClient:
         # print("CONTENT:", content)
         s = content.values().join()
 
-        with open(os.path.join('uploads', file_with_extension), 'w+', encoding="utf-8") as f:
+        with open(os.path.join(UPLOADS_FOLDER, file_with_extension), 'w+', encoding="utf-8") as f:
             f.write(s)
 
         os.remove(tmp_file_path)

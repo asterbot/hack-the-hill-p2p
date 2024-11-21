@@ -7,3 +7,4 @@ uuid==1.30
 flask==3.0.3
 flask_cors==5.0.0
 coverage==7.6.4 
+cryptography==43.0.3

@@ -1,1 +1,1 @@
-Adding the file just so that uploads folder is recognized via github
+Adding the file just so that uploads folder is recognized via GitHub

@@ -5,7 +5,6 @@ Generic functions used throughout the project that don't belong to a particular 
 """
 
 import os
-import hashlib
 
 from pathlib import Path
 from typing import Optional
@@ -13,14 +12,25 @@ from typing import Optional
 from config import SOURCES_FOLDER, UPLOADS_FOLDER
 
 
-def custom_hash(encode_input):
+def custom_encoding(normal_input: any) -> str:
     """
-    Using the hashlib sha256 encoding, we specifically hash the utf-8 encoding for
-    text files. This is our custom hash function we use in the entire project, we should not
-    use the inbuilt hash() function
+    Using utf-8 encoding. This is our custom encoding function we use in the entire project,
+    we should not use the inbuilt functions.
+
+    TODO Correct Implementation has to be written
     """
 
-    return hashlib.sha256(encode_input.encode("utf-8")).hexdigest()
+    return normal_input
+
+
+def custom_decoding(encoded_string: any) -> str:
+    """
+    Assuming that the encoding is utf-8. We should not read the file to get back the original value.
+
+    TODO Correct Implementation has to be written
+    """
+
+    return str(encoded_string)
 
 
 def find_file(directory: str, filename: str) -> Optional[str]:
@@ -59,7 +69,7 @@ def get_filename_by_file_id(file_id: str) -> Optional[tuple[str, str]]:
         with open(os.path.join(SOURCES_FOLDER, hackthehill_file), "r", encoding="utf-8") as f:
             hackthehill_file_content = f.read()
 
-            if file_id == custom_hash(hackthehill_file_content):
+            if file_id == custom_encoding(hackthehill_file_content):
                 original_file_name = find_file(UPLOADS_FOLDER, hackthehill_file)
                 if original_file_name is not None:
                     return original_file_name, hackthehill_file
