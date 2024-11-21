@@ -1,8 +1,10 @@
 """
 Testing the P2P Client functions
 """
-
+import socket
 import unittest
+
+from code.p2p_client import P2PClient
 
 
 class TestP2PClient(unittest.TestCase):
@@ -11,9 +13,22 @@ class TestP2PClient(unittest.TestCase):
     edge cases even if they don't contribute to coverage.
     """
 
-    def test_dummy(self):
+    def test_init(self):
         """
-        Just a placeholder
+        Just making sure that init function sets up correct types.
         """
 
-        self.assertEqual(1 + 1, 2)
+        with P2PClient() as test_client:
+            # Asserting types
+            self.assertTrue(type(test_client.__user_id__) is str)
+            self.assertTrue(type(test_client.__friends__) is dict)
+            self.assertTrue(type(test_client.__discovery_socket__) is socket.socket)
+            self.assertTrue(type(test_client.__chat_socket__) is socket.socket)
+
+    def test_start_runs_threads_in_correct_order(self):
+        """
+        Start function should throw no exceptions
+        """
+
+        with P2PClient() as test_client:
+            test_client.start()

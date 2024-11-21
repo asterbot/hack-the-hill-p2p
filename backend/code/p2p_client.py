@@ -12,7 +12,7 @@ from pathlib import Path
 from code.client_message import ClientMessage, MessageType, MessageError
 from code.utils import get_filename_by_file_id, save_file
 from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS, HASH_EXTENSION, \
-    SOURCES_FOLDER
+    SOURCES_FOLDER, DISCOVERY_HOST, CHAT_HOST
 
 
 class P2PClient:
@@ -32,13 +32,20 @@ class P2PClient:
         self.__friends__: dict[str, any] = {}
 
         self.__discovery_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__discovery_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.__discovery_socket__.bind(('', DISCOVERY_PORT))
+        self.__discovery_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, MAX_UDP_PACKET)
+        self.__discovery_socket__.bind((DISCOVERY_HOST, DISCOVERY_PORT))
 
         self.__chat_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__chat_socket__.bind(('', CHAT_PORT))
+        self.__chat_socket__.bind((CHAT_HOST, CHAT_PORT))
         self.__chat_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
         self.__chat_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__discovery_socket__.close()
+        self.__chat_socket__.close()
 
     def start(self) -> None:
         """
@@ -49,9 +56,9 @@ class P2PClient:
         3. We constantly keep telling everyone on our network that we are open to being friends.
         """
 
+        threading.Thread(target=self.__announce_presence__, daemon=True).start()
         threading.Thread(target=self.__discover_friends__, daemon=True).start()
         threading.Thread(target=self.__listen_for_messages__, daemon=True).start()
-        threading.Thread(target=self.__announce_presence__, daemon=True).start()
 
     def request_file(self, file_id: str) -> None:
         """

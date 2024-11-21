@@ -16,9 +16,9 @@ class MessageType(Enum):
     3. Response_File -> Respond back with the data of the file requested.
     """
 
-    ANNOUNCE = 0
-    REQUEST_FILE = 1
-    RESPONSE_FILE = 3
+    ANNOUNCE = 'announce'
+    REQUEST_FILE = 'request_file'
+    RESPONSE_FILE = 'response_file'
 
 
 class MessageError(Enum):
@@ -50,9 +50,9 @@ class ClientMessage:
         """
 
         json_message = json.loads(data_bytes.decode())
-        self.type = json_message['type']
+        self.type = MessageType(json_message['type']).name
         self.user_id = json_message['user_id']
-        self.error = json_message['error']
+        self.error = MessageError(json_message['error']).name
 
         assert self.type
         assert self.user_id
@@ -83,9 +83,9 @@ class ClientMessage:
         assert self.error
 
         information = {
-            'type': self.type,
+            'type': self.type.value,
             'user_id': self.user_id,
-            'error': self.error
+            'error': self.error.value
         }
 
         if self.type == MessageType.REQUEST_FILE:

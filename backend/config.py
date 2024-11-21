@@ -6,6 +6,8 @@ Since the file contains actual directory names, it must be at the root of backen
 
 import os.path
 
+DISCOVERY_HOST: str = '0.0.0.0'
+CHAT_HOST: str = '0.0.0.0'
 DISCOVERY_PORT: int = 5000
 CHAT_PORT: int = 5001
 MAX_UDP_PACKET: int = 65507
