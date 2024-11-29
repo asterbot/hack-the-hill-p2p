@@ -50,9 +50,9 @@ class ClientMessage:
         """
 
         json_message = json.loads(data_bytes.decode())
-        self.type = MessageType(json_message['type']).name
+        self.type = MessageType(json_message['type'])
         self.user_id = json_message['user_id']
-        self.error = MessageError(json_message['error']).name
+        self.error = MessageError(json_message['error'])
 
         assert self.type
         assert self.user_id
@@ -75,7 +75,7 @@ class ClientMessage:
     def to_json(self) -> str:
         """
         Given the type of message we currently have, we can convert our personal message to
-        a json format, ready for sending to another client as a API message.
+        a json format, ready for sending to another client as an API message.
         """
 
         assert self.type
@@ -109,3 +109,38 @@ class ClientMessage:
         """
 
         return self.type == message_type
+
+    def __ne__(self, other) -> bool:
+        """
+        Overrides the default inequality operation
+        """
+
+        if isinstance(other, ClientMessage):
+            if self.type != other.type:
+                return True
+            if self.user_id != other.user_id:
+                return True
+            if self.file_id != other.file_id:
+                return True
+            if self.file_name != other.file_name:
+                return True
+            if self.content != other.content:
+                return True
+            if self.error != other.error:
+                return True
+
+        return False
+
+    def __eq__(self, other):
+        """
+        Overrides the default equality operation
+        """
+
+        return not self.__ne__(other)
+
+    def __str__(self):
+        """
+        Overrides the default string conversion operation, used in print() statement
+        """
+
+        return self.to_json()

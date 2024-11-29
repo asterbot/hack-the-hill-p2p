@@ -20,10 +20,10 @@ class TestP2PClient(unittest.TestCase):
 
         with P2PClient() as test_client:
             # Asserting types
-            self.assertTrue(type(test_client.__user_id__) is str)
-            self.assertTrue(type(test_client.__friends__) is dict)
-            self.assertTrue(type(test_client.__discovery_socket__) is socket.socket)
-            self.assertTrue(type(test_client.__chat_socket__) is socket.socket)
+            self.assertTrue(isinstance(test_client.__user_id__, str))
+            self.assertTrue(isinstance(test_client.__friends__, dict))
+            self.assertTrue(isinstance(test_client.__discovery_socket__, socket.socket))
+            self.assertTrue(isinstance(test_client.__chat_socket__, socket.socket))
 
     def test_start_runs_threads_in_correct_order(self):
         """
