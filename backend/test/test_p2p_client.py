@@ -4,6 +4,7 @@ Testing the P2P Client functions
 import socket
 import unittest
 
+from code.client_message import ClientMessage, MessageType, MessageError
 from code.p2p_client import P2PClient
 
 
@@ -25,10 +26,24 @@ class TestP2PClient(unittest.TestCase):
             self.assertTrue(isinstance(test_client.__discovery_socket__, socket.socket))
             self.assertTrue(isinstance(test_client.__chat_socket__, socket.socket))
 
-    def test_start_runs_threads_in_correct_order(self):
+    def test_start_throws_no_exception(self):
         """
         Start function should throw no exceptions
         """
 
         with P2PClient() as test_client:
             test_client.start()
+
+    def test_request_file_sends_correct_client_message(self):
+        """
+        We should be requesting for the correct file
+        """
+        
+        test_file_id = 1
+        
+        with P2PClient() as test_client:
+            test_client_message = ClientMessage()
+            test_client_message.type = MessageType.REQUEST_FILE
+            test_client_message.user_id = test_client.__user_id__
+            test_client_message.file_id = test_file_id
+            test_client_message.error = MessageError.NO_ERROR
