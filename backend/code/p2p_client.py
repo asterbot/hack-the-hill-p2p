@@ -48,10 +48,6 @@ class P2PClient:
         self.__sender_socket__.close()
         self.__receiver_socket__.close()
 
-        self.__announce_thread__.join()
-        self.__discover_thread__.join()
-        self.__listen_thread__.join()
-
     def start(self) -> None:
         """
         Run these processes in the background constantly (daemon) on different threads.
