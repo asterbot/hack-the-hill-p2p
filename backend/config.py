@@ -6,12 +6,10 @@ Since the file contains actual directory names, it must be at the root of backen
 
 import os.path
 
-DISCOVERY_HOST: str = '0.0.0.0'
-CHAT_HOST: str = '0.0.0.0'
-DISCOVERY_PORT: int = 5000
-CHAT_PORT: int = 5001
-MAX_UDP_PACKET: int = 65507
-DISCOVERY_ADDRESS: str = "192.168.181.255"
+GLOBAL_IP: str = '0.0.0.0'
+PORT: int = 9999
+MAX_DATA_SIZE: int = 1024
+
 HASH_EXTENSION: str = ".hackthehill"
 
 BACKEND_FOLDER: str = os.path.dirname(os.path.abspath(__file__))

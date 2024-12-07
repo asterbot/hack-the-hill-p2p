@@ -1,5 +1,5 @@
 """
-P2P Connection and TCP File Sharing
+P2P Connection and File Sharing
 """
 
 import os
@@ -11,13 +11,14 @@ from pathlib import Path
 
 from code.client_message import ClientMessage, MessageType, MessageError
 from code.utils import get_filename_by_file_id, save_file
-from config import DISCOVERY_PORT, CHAT_PORT, MAX_UDP_PACKET, DISCOVERY_ADDRESS, HASH_EXTENSION, \
-    SOURCES_FOLDER, DISCOVERY_HOST, CHAT_HOST
+from config import HASH_EXTENSION, SOURCES_FOLDER, GLOBAL_IP, PORT, MAX_DATA_SIZE
+
+TAG = "[P2P CLIENT]"
 
 
 class P2PClient:
     """
-    P2P client is the main application that creates P2P connection between two users, and uses TCP
+    P2P client is the main application that creates P2P connection between two users, and uses UDP
     for file sharing. Note that this class uses threads and async functions extensively.
 
     For getting a new file across, we have the following transitions.
@@ -28,24 +29,28 @@ class P2PClient:
     """
 
     def __init__(self):
+        self.__announce_thread__ = threading.Thread(target=self.__announce_presence__, daemon=True)
+        self.__discover_thread__ = threading.Thread(target=self.__discover_friends__, daemon=True)
+        self.__listen_thread__ = threading.Thread(target=self.__listen_for_messages__, daemon=True)
+
         self.__user_id__: str = uuid.uuid4().__str__()
         self.__friends__: dict[str, any] = {}
 
-        self.__discovery_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__discovery_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, MAX_UDP_PACKET)
-        self.__discovery_socket__.bind((DISCOVERY_HOST, DISCOVERY_PORT))
+        self.__sender_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        self.__chat_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__chat_socket__.bind((CHAT_HOST, CHAT_PORT))
-        self.__chat_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, MAX_UDP_PACKET)
-        self.__chat_socket__.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, MAX_UDP_PACKET)
+        self.__receiver_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__receiver_socket__.bind((GLOBAL_IP, PORT))
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.__discovery_socket__.close()
-        self.__chat_socket__.close()
+        self.__sender_socket__.close()
+        self.__receiver_socket__.close()
+
+        self.__announce_thread__.join()
+        self.__discover_thread__.join()
+        self.__listen_thread__.join()
 
     def start(self) -> None:
         """
@@ -56,9 +61,9 @@ class P2PClient:
         3. We constantly keep telling everyone on our network that we are open to being friends.
         """
 
-        threading.Thread(target=self.__announce_presence__, daemon=True).start()
-        threading.Thread(target=self.__discover_friends__, daemon=True).start()
-        threading.Thread(target=self.__listen_for_messages__, daemon=True).start()
+        self.__announce_thread__.start()
+        self.__discover_thread__.start()
+        self.__listen_thread__.start()
 
     def request_file(self, file_id: str) -> None:
         """
@@ -76,7 +81,7 @@ class P2PClient:
         response = client_message.to_json()
 
         for friend in self.__friends__.values():
-            self.__chat_socket__.sendto(response.encode(), (friend, CHAT_PORT))
+            self.__sender_socket__.sendto(response.encode(), (friend, PORT))
 
     def __discover_friends__(self) -> None:
         """
@@ -85,7 +90,7 @@ class P2PClient:
         """
 
         while True:
-            data, addr = self.__discovery_socket__.recvfrom(MAX_UDP_PACKET)
+            data, addr = self.__receiver_socket__.recvfrom(MAX_DATA_SIZE)
             client_message = ClientMessage()
             client_message.load(data)
 
@@ -104,7 +109,7 @@ class P2PClient:
         response = client_message.to_json()
 
         while True:
-            self.__discovery_socket__.sendto(response.encode(), (DISCOVERY_ADDRESS, DISCOVERY_PORT))
+            self.__sender_socket__.sendto(response.encode(), (GLOBAL_IP, PORT))
             time.sleep(2)
 
     def __response_file__(self, friend_message: ClientMessage) -> None:
@@ -124,7 +129,7 @@ class P2PClient:
         files = get_filename_by_file_id(client_message.file_id)
 
         if files is None:
-            print("No such file: " + client_message.file_id)
+            print(f"{TAG} No such file: {client_message.file_id}")
             client_message.error = MessageError.FILE_NOT_FOUND
             return
 
@@ -137,11 +142,12 @@ class P2PClient:
 
             response = client_message.to_json()
             friend_ip = self.__friends__[friend_message.user_id]
-            self.__chat_socket__.sendto(response.encode(), (friend_ip, CHAT_PORT))
+            self.__sender_socket__.sendto(response.encode(), (friend_ip, PORT))
 
     def __listen_for_messages__(self):
         """
-        Listen for new messages from your friends.
+        Listen for new messages from your friends. If the address we received the message from is
+        not in your friends, we don't want to listen to their messages.
 
         If they request for a file, you must respond to your friends.
 
@@ -149,11 +155,15 @@ class P2PClient:
         """
 
         while True:
-            data, _ = self.__chat_socket__.recvfrom(MAX_UDP_PACKET)
+            data, addr = self.__receiver_socket__.recvfrom(MAX_DATA_SIZE)
+
+            if addr not in self.__friends__.values():
+                continue
+
             friend_message = ClientMessage()
             friend_message.load(data)
 
-            print(friend_message)
+            print(f"{TAG} {friend_message}")
 
             if friend_message.user_id in self.__friends__:
                 if friend_message.is_type(MessageType.REQUEST_FILE):
@@ -161,6 +171,6 @@ class P2PClient:
                 elif friend_message.is_type(MessageType.RESPONSE_FILE):
                     save_file(friend_message)
                 else:
-                    print("Invalid message type")
+                    print(f"{TAG} Invalid message type")
             else:
-                print("User id " + friend_message.user_id + " is not in the peers")
+                print(f"{TAG} User id {friend_message.user_id} is not in the peers")

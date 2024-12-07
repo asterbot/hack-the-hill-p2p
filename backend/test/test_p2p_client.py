@@ -23,8 +23,8 @@ class TestP2PClient(unittest.TestCase):
             # Asserting types
             self.assertTrue(isinstance(test_client.__user_id__, str))
             self.assertTrue(isinstance(test_client.__friends__, dict))
-            self.assertTrue(isinstance(test_client.__discovery_socket__, socket.socket))
-            self.assertTrue(isinstance(test_client.__chat_socket__, socket.socket))
+            self.assertTrue(isinstance(test_client.__receiver_socket__, socket.socket))
+            self.assertTrue(isinstance(test_client.__sender_socket__, socket.socket))
 
     def test_start_throws_no_exception(self):
         """
