@@ -36,14 +36,17 @@ class P2PClient:
 
         self.__user_id__: str = uuid.uuid4().__str__()
         self.__friends__: dict[str, any] = {}
+        self.running: bool
 
         self.__sender_socket__ = SenderSocket()
         self.__receiver_socket__ = ReceiverSocket()
 
     def __enter__(self):
+        self.running = True
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.running = False
         self.__sender_socket__.close()
         self.__receiver_socket__.close()
 
@@ -85,7 +88,7 @@ class P2PClient:
         dictionary.
         """
 
-        while True:
+        while self.running:
             data, addr = self.__receiver_socket__.receive()
             client_message = ClientMessage()
             client_message.load(data)
@@ -104,7 +107,7 @@ class P2PClient:
         client_message.user_id = self.__user_id__
         response = client_message.to_json()
 
-        while True:
+        while self.running:
             self.__sender_socket__.send(response)
             sleep(0.01)
 
@@ -150,7 +153,7 @@ class P2PClient:
         If they respond regarding a file, you must save the data sent.
         """
 
-        while True:
+        while self.running:
             data, addr = self.__receiver_socket__.receive()
 
             if addr not in self.__friends__.values():

@@ -8,6 +8,7 @@ from code.client_message import ClientMessage, MessageType, MessageError
 from code.p2p_client import P2PClient
 from code.receiver_socket import ReceiverSocket
 from code.sender_socket import SenderSocket
+from config import GLOBAL_IP
 
 
 class TestP2PClient(unittest.TestCase):
@@ -28,24 +29,42 @@ class TestP2PClient(unittest.TestCase):
             self.assertTrue(isinstance(test_client.__receiver_socket__, ReceiverSocket))
             self.assertTrue(isinstance(test_client.__sender_socket__, SenderSocket))
 
-    def test_start_throws_no_exception(self):
+    def test_start_with_no_friends_throws_no_exception(self):
         """
-        Start function should throw no exceptions
+        Start with no friends function should throw no exceptions
         """
 
         with P2PClient() as test_client:
             test_client.start()
 
-    def test_request_file_sends_correct_client_message(self):
+    def test_start_with_friends_throws_no_exception(self):
         """
-        We should be requesting for the correct file
+        Start with a friend function should throw no exceptions
         """
-
-        test_file_id = 1
 
         with P2PClient() as test_client:
-            test_client_message = ClientMessage()
-            test_client_message.type = MessageType.REQUEST_FILE
-            test_client_message.user_id = test_client.__user_id__
-            test_client_message.file_id = test_file_id
-            test_client_message.error = MessageError.NO_ERROR
+            test_client.__friends__ = {'friend': GLOBAL_IP}
+            test_client.start()
+
+    def test_start_and_request_with_no_friends_throws_no_exception(self):
+        """
+        We should be requesting for the correct file, but with no friends
+        """
+
+        test_file_id = "test_start_and_request_with_no_friends_throws_no_exception"
+
+        with P2PClient() as test_client:
+            test_client.start()
+            test_client.request_file(test_file_id)
+
+    def test_start_and_request_with_friends_throws_no_exception(self):
+        """
+        We should be requesting for the correct file, with friend
+        """
+
+        test_file_id = "test_start_and_request_with_no_friends_throws_no_exception"
+
+        with P2PClient() as test_client:
+            test_client.start()
+            test_client.__friends__ = {'friend': GLOBAL_IP}
+            test_client.request_file(test_file_id)
