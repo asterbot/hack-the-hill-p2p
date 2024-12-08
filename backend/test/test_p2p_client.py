@@ -6,6 +6,8 @@ import unittest
 
 from code.client_message import ClientMessage, MessageType, MessageError
 from code.p2p_client import P2PClient
+from code.receiver_socket import ReceiverSocket
+from code.sender_socket import SenderSocket
 
 
 class TestP2PClient(unittest.TestCase):
@@ -23,8 +25,8 @@ class TestP2PClient(unittest.TestCase):
             # Asserting types
             self.assertTrue(isinstance(test_client.__user_id__, str))
             self.assertTrue(isinstance(test_client.__friends__, dict))
-            self.assertTrue(isinstance(test_client.__receiver_socket__, socket.socket))
-            self.assertTrue(isinstance(test_client.__sender_socket__, socket.socket))
+            self.assertTrue(isinstance(test_client.__receiver_socket__, ReceiverSocket))
+            self.assertTrue(isinstance(test_client.__sender_socket__, SenderSocket))
 
     def test_start_throws_no_exception(self):
         """

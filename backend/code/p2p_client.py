@@ -3,15 +3,16 @@ P2P Connection and File Sharing
 """
 
 import os
-import socket
 import threading
 import time
 import uuid
 from pathlib import Path
 
 from code.client_message import ClientMessage, MessageType, MessageError
+from code.receiver_socket import ReceiverSocket
+from code.sender_socket import SenderSocket
 from code.utils import get_filename_by_file_id, save_file
-from config import HASH_EXTENSION, SOURCES_FOLDER, GLOBAL_IP, PORT, MAX_DATA_SIZE
+from config import HASH_EXTENSION, SOURCES_FOLDER
 
 TAG = "[P2P CLIENT]"
 
@@ -36,10 +37,8 @@ class P2PClient:
         self.__user_id__: str = uuid.uuid4().__str__()
         self.__friends__: dict[str, any] = {}
 
-        self.__sender_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-        self.__receiver_socket__ = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__receiver_socket__.bind((GLOBAL_IP, PORT))
+        self.__sender_socket__ = SenderSocket()
+        self.__receiver_socket__ = ReceiverSocket()
 
     def __enter__(self):
         return self
@@ -77,7 +76,7 @@ class P2PClient:
         response = client_message.to_json()
 
         for friend in self.__friends__.values():
-            self.__sender_socket__.sendto(response.encode(), (friend, PORT))
+            self.__sender_socket__.send(response, friend)
 
     def __discover_friends__(self) -> None:
         """
@@ -86,7 +85,7 @@ class P2PClient:
         """
 
         while True:
-            data, addr = self.__receiver_socket__.recvfrom(MAX_DATA_SIZE)
+            data, addr = self.__receiver_socket__.receive()
             client_message = ClientMessage()
             client_message.load(data)
 
@@ -105,7 +104,7 @@ class P2PClient:
         response = client_message.to_json()
 
         while True:
-            self.__sender_socket__.sendto(response.encode(), (GLOBAL_IP, PORT))
+            self.__sender_socket__.send(response)
             time.sleep(2)
 
     def __response_file__(self, friend_message: ClientMessage) -> None:
@@ -138,7 +137,7 @@ class P2PClient:
 
             response = client_message.to_json()
             friend_ip = self.__friends__[friend_message.user_id]
-            self.__sender_socket__.sendto(response.encode(), (friend_ip, PORT))
+            self.__sender_socket__.send(response, friend_ip)
 
     def __listen_for_messages__(self):
         """
@@ -151,7 +150,7 @@ class P2PClient:
         """
 
         while True:
-            data, addr = self.__receiver_socket__.recvfrom(MAX_DATA_SIZE)
+            data, addr = self.__receiver_socket__.receive()
 
             if addr not in self.__friends__.values():
                 continue
