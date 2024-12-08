@@ -1,8 +1,10 @@
 """
 Testing that Sender and Receiver sockets work
 """
+
 import threading
 import unittest
+from time import sleep
 
 from code.receiver_socket import ReceiverSocket
 from code.sender_socket import SenderSocket
@@ -10,37 +12,39 @@ from code.sender_socket import SenderSocket
 
 class TestSockets(unittest.TestCase):
     """
-        Testing sockets
+    Testing sockets
     """
-    
+
     def setUp(self):
         self.data_received: str = ""
-
         self.receiver = ReceiverSocket()
-        self.thread = self.background_process(self.receiver)
-
         self.sender = SenderSocket()
-    
+        self.background_process()
+
     def tearDown(self):
-        self.thread.join()
+        self.receive_thread.join()
         self.sender.close()
         self.receiver.close()
 
-    def start_receiving(self, receiver: ReceiverSocket):
-        data: bytes
+    def start_receiving(self):
+        """
+        TODO
+        """
 
         while True:
-            data, addr = receiver.receive()
+            data, _ = self.receiver.receive()
 
-            print(data.decode())
+            if data.decode() != "":
+                self.data_received = data.decode()
+                break
 
-    def background_process(self, receiver: ReceiverSocket):
-        receive_thread = threading.Thread(target=self.start_receiving,
-                                          kwargs={'receiver': receiver},
-                                          daemon=True)
-        receive_thread.start()
+    def background_process(self):
+        """
+        TODO
+        """
 
-        return receive_thread
+        self.receive_thread = threading.Thread(target=self.start_receiving, daemon=True)
+        self.receive_thread.start()
 
     def test_instance_of_sending_and_receiving(self):
         """
@@ -49,4 +53,5 @@ class TestSockets(unittest.TestCase):
 
         test_data = "test_instance_of_sending_and_receiving"
         self.sender.send(test_data)
+        sleep(0.01)
         self.assertEqual(self.data_received, test_data)

@@ -1,7 +1,7 @@
 """
 Testing the P2P Client functions
 """
-import socket
+
 import unittest
 
 from code.client_message import ClientMessage, MessageType, MessageError
@@ -40,9 +40,9 @@ class TestP2PClient(unittest.TestCase):
         """
         We should be requesting for the correct file
         """
-        
+
         test_file_id = 1
-        
+
         with P2PClient() as test_client:
             test_client_message = ClientMessage()
             test_client_message.type = MessageType.REQUEST_FILE

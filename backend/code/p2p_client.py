@@ -4,9 +4,9 @@ P2P Connection and File Sharing
 
 import os
 import threading
-import time
 import uuid
 from pathlib import Path
+from time import sleep
 
 from code.client_message import ClientMessage, MessageType, MessageError
 from code.receiver_socket import ReceiverSocket
@@ -77,6 +77,7 @@ class P2PClient:
 
         for friend in self.__friends__.values():
             self.__sender_socket__.send(response, friend)
+            sleep(0.01)
 
     def __discover_friends__(self) -> None:
         """
@@ -105,7 +106,7 @@ class P2PClient:
 
         while True:
             self.__sender_socket__.send(response)
-            time.sleep(2)
+            sleep(0.01)
 
     def __response_file__(self, friend_message: ClientMessage) -> None:
         """
