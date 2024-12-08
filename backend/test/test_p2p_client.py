@@ -4,7 +4,6 @@ Testing the P2P Client functions
 
 import unittest
 
-from code.client_message import ClientMessage, MessageType, MessageError
 from code.p2p_client import P2PClient
 from code.receiver_socket import ReceiverSocket
 from code.sender_socket import SenderSocket
