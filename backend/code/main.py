@@ -68,7 +68,7 @@ def receive_token():
     data = request.get_json()
     file_hash = data.get('final_id')
 
-    client.request_file_fingerprint(file_hash)
+    client.request_file(file_hash)
 
     files = get_filename_by_file_id(file_hash)
 
@@ -96,6 +96,6 @@ def receive_token():
 
 
 if __name__ == '__main__':
-    client = P2PClient()
-    client.start()
-    app.run(debug=False)
+    with P2PClient() as client:
+        client.start()
+        app.run(debug=False)
